@@ -8,8 +8,10 @@ pygame.init()
 while(True):
 
     for event in pygame.event.get():
+        print(event.key)
+        print(event.type)
         if event.type == pygame.KEYDOWN:
-            print(event.key)
+
             if event.key == pygame.K_w:
                 print("up")
                 kit.motor1.throttle = 0.5
