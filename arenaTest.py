@@ -68,7 +68,7 @@ if __name__ == "__main__":
 				wheelTicks = encoderValSigned
 		wheelRotations = wheelTicks/countsPer
 		wheelDist = wheelRotations*wheelD*3.14159
-		return wheelDist
+		return -wheelDist
 
 	def resetEncoders():
 		ser.write(bytes([60]))
@@ -110,36 +110,71 @@ if __name__ == "__main__":
 					speed = minThrottle
 				elif (abs(speed) < minThrottle and speed < 0):
 					speed = -minThrottle 
-
-         #if (abs(speed) < minThrottle):
-         #   #print("Start")
-         #   drive.motor1.throttle = startThrottle * (-1 if speed < 0 else 1)
-         #   time.sleep(startThrottleTime)
-
 			drive.motor2.throttle = -speed
 			drive.motor3.throttle = -speed
-
 			if (abs(speed) <= minThrottle and abs(error) < 0.125):
 				drive.motor2.throttle = 0;
 				drive.motor3.throttle = 0;
 				time.sleep(0.5)
 				print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
 				break
+		print("rotations={0}".format(rotations))
 
+	def drivePID2(target, kp, ki, kd):
+		global error
+		global lastError
+
+		pos = 0
+		rotations = 0
+		dist = 0
+		speed = 0
+
+		integral = 0
+		derivative = 0
+
+		resetEncoders()
+
+		while(1):
+			dist = getDist2()
+			#print(dist)
+			#time.sleep(0.05)
+			lastError = error
+			error = target - dist
+			integral += error
+			derivative = error - lastError
+			speed = ((kp*error) + (ki*integral) + (kd*derivative))
+			#print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
+         
+			if speed > topSpeed:
+				speed = topSpeed
+			elif speed < -topSpeed:
+				speed = -topSpeed
+			else:
+				if (abs(speed) < minThrottle and speed > 0):
+					speed = minThrottle
+				elif (abs(speed) < minThrottle and speed < 0):
+					speed = -minThrottle 
+			drive.motor1.throttle = -speed
+			drive.motor4.throttle = speed
+			if (abs(speed) <= minThrottle and abs(error) < 0.125):
+				drive.motor1.throttle = 0;
+				drive.motor4.throttle = 0;
+				time.sleep(0.5)
+				print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
+				break
 		print("rotations={0}".format(rotations))
 
 	pi = pigpio.pi()
 	drive = MotorKit()
 
 	try:
-		drivePID1(12, _kp, _ki, _kd)
-		#drive.motor1.throttle = 0.5
-		#drive.motor2.throttle = 0.5
-		#drive.motor3.throttle = 0.5
-		#drive.motor4.throttle = 0.5
+		#drivePID1(12, _kp, _ki, _kd)
+		drivePID2(-10.75, _kp, _ki, _kd)
+
 		#time.sleep(3)
 	finally:
-		print(getDist1())
+		#print(getDist1())
+		print(getDist2())
 		drive.motor1.throttle = 0
 		drive.motor2.throttle = 0
 		drive.motor3.throttle = 0
