@@ -1,205 +1,147 @@
 #!/usr/bin/env python
+import time
 import pigpio
 from adafruit_motorkit import MotorKit
-
-class decoder:
-
-   def __init__(self, pi, gpioA, gpioB, callback):
-
-      self.pi = pi
-      self.gpioA = gpioA
-      self.gpioB = gpioB
-      self.callback = callback
-
-      self.levA = 0
-      self.levB = 0
-
-      self.lastGpio = None
-
-      self.pi.set_mode(gpioA, pigpio.INPUT)
-      self.pi.set_mode(gpioB, pigpio.INPUT)
-
-      self.pi.set_pull_up_down(gpioA, pigpio.PUD_UP)
-      self.pi.set_pull_up_down(gpioB, pigpio.PUD_UP)
-
-      self.cbA = self.pi.callback(gpioA, pigpio.EITHER_EDGE, self._pulse)
-      self.cbB = self.pi.callback(gpioB, pigpio.EITHER_EDGE, self._pulse)
-
-   def _pulse(self, gpio, level, tick):
-
-      """
-      Decode the rotary encoder pulse.
-
-                   +---------+         +---------+      0
-                   |         |         |         |
-         A         |         |         |         |
-                   |         |         |         |
-         +---------+         +---------+         +----- 1
-
-             +---------+         +---------+            0
-             |         |         |         |
-         B   |         |         |         |
-             |         |         |         |
-         ----+         +---------+         +---------+  1
-      """
-
-      if gpio == self.gpioA:
-         self.levA = level
-      else:
-         self.levB = level;
-
-      if gpio != self.lastGpio: # debounce
-         self.lastGpio = gpio
-
-         if   gpio == self.gpioA and level == 1:
-            if self.levB == 1:
-	       #print("Backward tick")
-               self.callback(1)
-         elif gpio == self.gpioB and level == 1:
-            if self.levA == 1:
-	       #print("Forward tick")
-               self.callback(-1)
-
-   def cancel(self):
-
-      """
-      Cancel the rotary encoder decoder.
-      """
-
-      self.cbA.cancel()
-      self.cbB.cancel()
+#from xbee import XBee
+import serial
+import struct
 
 if __name__ == "__main__":
+	global pos
+	global rotations
+	global dist
+	global wheelD
+	global countsPer
+	global topSpeed
+	topSpeed = 0.3
+	pos = 0
+	rotations = 0
+	dist = 0
+	wheelD = 2.362
+	countsPer = 155.0/31  #155.0
 
-   import time
-   import pigpio
-   from adafruit_motorkit import MotorKit
+	ser = serial.Serial(port='/dev/ttyS0',baudrate = 115200)
 
-   import RotateWheels
+	global error
+	global lastError
+	error = 0
+	lastError = 0
+	_kp = 0.10	#0.145	#0.165	#0.275 	#0.16 	0.0925  0.078
+	_ki = 0.005	#0.015	#0.02	#0.05	#0.0 	0.005   0.00
+	_kd = 0.1	#0.21	#0.175	#0.5 	#0.2  	0.0225 	0.045
 
-   global pos
-   global rotations
-   global dist
-   global wheelD
-   global countsPer
-   global topSpeed
-   topSpeed = 0.3
-   pos = 0
-   rotations = 0
-   dist = 0
-   wheelD = 2.362
-   countsPer = 155.0/31  #155.0
+	minThrottle = 0.25
+	startThrottle = 0.8
+	startThrottleTime = 0.05
 
-   global error
-   global lastError
-   error = 0
-   lastError = 0
-   _kp = 0.10	#0.145	#0.165	#0.275 	#0.16 	0.0925  0.078
-   _ki = 0.005	#0.015	#0.02	#0.05	#0.0 	0.005   0.00
-   _kd = 0.1	#0.21	#0.175	#0.5 	#0.2  	0.0225 	0.045
+	def getDist1():
+		global wheelD
+		global countsPer
 
-   minThrottle = 0.25
-   startThrottle = 0.8
-   startThrottleTime = 0.05
+		ser.write(bytes([0x02]))
+		wheelTicks = 0
+		wheelRotations = 0
+		wheelDist = 0
+		for i in range(2):
+			encoderVal = struct.unpack("<L", ser.read(4))[0]
+			encoderVal = encoderVal & 0xffffffff
+			encoderValSigned = (encoderVal ^ 0x80000000) - 0x80000000
+			if i == 0:
+				wheelTicks = encoderValSigned
+		wheelRotations = wheelTicks/countsPer
+		wheelDist = wheelRotations*wheelD*3.14159
+		return wheelDist
 
-   #actual_time = 0
-   #past_time = time.time()
-   #velocity = 0
+	def getDist2():
+		global wheelD
+		global countsPer
 
-   global encoderTicks
-   global updateResolution
+		ser.write(bytes([0x02]))
+		wheelTicks = 0
+		wheelRotations = 0
+		wheelDist = 0
+		for i in range(2):
+			encoderVal = struct.unpack("<L", ser.read(4))[0]
+			encoderVal = encoderVal & 0xffffffff
+			encoderValSigned = (encoderVal ^ 0x80000000) - 0x80000000
+			if i == 1:
+				wheelTicks = encoderValSigned
+		wheelRotations = wheelTicks/countsPer
+		wheelDist = wheelRotations*wheelD*3.14159
+		return wheelDist
 
-   updateResolution = 31
-   encoderTicks = 0
+	def resetEncoders():
+		ser.write(bytes([60]))
+		for i in range(2):
+			encoderVal = struct.unpack("<L", ser.read(4))[0]	
 
-   def callback(way):
-      global encoderTicks
-      global updateResolution
-      encoderTicks += 1
-      if (encoderTicks % updateResolution == 0):
-         encoderTicks = 0
+	def drivePID1(target, kp, ki, kd):
+		global error
+		global lastError
 
+		pos = 0
+		rotations = 0
+		dist = 0
+		speed = 0
 
-         global pos
-         global rotations
-         global dist
+		integral = 0
+		derivative = 0
 
-         #global past_time
-         #global time_actual
-         #global velocity
-         #actual_time = time.time()
-      
-         pos -= way
-         rotations = (pos/countsPer)
-         dist = rotations*wheelD*3.14159
+		resetEncoders()
 
-         #time = actual_time - past_time
-         # velocity = 0.06283185307179587/time #linear movement of machine from each step of stepper motor
-         #past_time = actual_time
-         #print("Callback: " + str(way))
-
-
-
-   def drivePID1(target, kp, ki, kd):
-      global pos
-      global rotations
-      global dist
-      global error
-      global lastError
-
-      pos = 0
-      rotations = 0
-      dist = 0
-      speed = 0
-
-      integral = 0
-      derivative = 0
-
-      while(1):
-         time.sleep(0.05)
-         lastError = error
-         error = target - dist
-         integral += error
-         derivative = error - lastError
-         speed = ((kp*error) + (ki*integral) + (kd*derivative))
-         #print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
+		while(1):
+			dist = getDist1()
+			print(dist)
+			#time.sleep(0.05)
+			lastError = error
+			error = target - dist
+			integral += error
+			derivative = error - lastError
+			speed = ((kp*error) + (ki*integral) + (kd*derivative))
+			#print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
   
          
-         if speed > topSpeed:
-            speed = topSpeed
-         elif speed < -topSpeed:
-            speed = -topSpeed
-         else:
-            if (abs(speed) < minThrottle and speed > 0):
-                speed = minThrottle
-            elif (abs(speed) < minThrottle and speed < 0):
-                speed = -minThrottle 
-
-         #print(speed)
+			if speed > topSpeed:
+				speed = topSpeed
+			elif speed < -topSpeed:
+				speed = -topSpeed
+			else:
+				if (abs(speed) < minThrottle and speed > 0):
+					speed = minThrottle
+				elif (abs(speed) < minThrottle and speed < 0):
+					speed = -minThrottle 
 
          #if (abs(speed) < minThrottle):
          #   #print("Start")
          #   drive.motor1.throttle = startThrottle * (-1 if speed < 0 else 1)
          #   time.sleep(startThrottleTime)
 
-         drive.motor1.throttle = -speed
-         drive.motor3.throttle = -speed
-         if (abs(speed) < minThrottle and abs(error) < 0.75):
-            drive.motor3.throttle = 0;
-            drive.motor1.throttle = 0;
-            time.sleep(0.5)
-            print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
-            break
+			drive.motor2.throttle = speed
+			drive.motor3.throttle = speed
+			if (abs(speed) < minThrottle and abs(error) < 0.75):
+				drive.motor2.throttle = 0;
+				drive.motor3.throttle = 0;
+				time.sleep(0.5)
+				print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
+				break
 
-      print("rotations={0}".format(rotations))
+		print("rotations={0}".format(rotations))
 
-   pi = pigpio.pi()
-   drive = MotorKit()
+	pi = pigpio.pi()
+	drive = MotorKit()
 
-   decoder = RotateWheels.decoder(pi, 4, 17, callback)
-
-   drivePID1(12, _kp, _ki, _kd)
-
-   decoder.cancel()
-
-   pi.stop()
+	try:
+		drivePID1(12, _kp, _ki, _kd)
+		#drive.motor1.throttle = 0.5
+		#drive.motor2.throttle = 0.5
+		#drive.motor3.throttle = 0.5
+		#drive.motor4.throttle = 0.5
+		#time.sleep(3)
+	finally:
+		drive.motor1.throttle = 0
+		drive.motor2.throttle = 0
+		drive.motor3.throttle = 0
+		drive.motor4.throttle = 0
+		pi.stop()
+		ser.close()
+		
