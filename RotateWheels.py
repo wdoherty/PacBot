@@ -18,7 +18,7 @@ if __name__ == "__main__":
 	rotations = 0
 	dist = 0
 	wheelD = 2.362
-	countsPer = 155.0/31  #155.0
+	countsPer = 155.0  #155.0
 
 	ser = serial.Serial(port='/dev/ttyS0',baudrate = 115200)
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 			encoderVal = struct.unpack("<L", ser.read(4))[0]
 			encoderVal = encoderVal & 0xffffffff
 			encoderValSigned = (encoderVal ^ 0x80000000) - 0x80000000
-			if i == 0:
+			if i == 1:
 				wheelTicks = encoderValSigned
 		wheelRotations = wheelTicks/countsPer
 		wheelDist = wheelRotations*wheelD*3.14159
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 			encoderVal = struct.unpack("<L", ser.read(4))[0]
 			encoderVal = encoderVal & 0xffffffff
 			encoderValSigned = (encoderVal ^ 0x80000000) - 0x80000000
-			if i == 1:
+			if i == 0:
 				wheelTicks = encoderValSigned
 		wheelRotations = wheelTicks/countsPer
 		wheelDist = wheelRotations*wheelD*3.14159
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 	def resetEncoders():
 		ser.write(bytes([60]))
 		for i in range(2):
-			encoderVal = struct.unpack("<L", ser.read(4))[0]	
+			encoderVal = struct.unpack("<L", ser.read(4))[0]
 
 	def drivePID1(target, kp, ki, kd):
 		global error
@@ -91,16 +91,15 @@ if __name__ == "__main__":
 
 		while(1):
 			dist = getDist1()
-			print(dist)
-			#time.sleep(0.05)
+			# print(dist)
+			time.sleep(0.05)
 			lastError = error
 			error = target - dist
 			integral += error
 			derivative = error - lastError
 			speed = ((kp*error) + (ki*integral) + (kd*derivative))
 			#print("Dist={0}, Error={1}, Speed={2}".format(dist, error, speed))
-  
-         
+
 			if speed > topSpeed:
 				speed = topSpeed
 			elif speed < -topSpeed:
@@ -109,7 +108,7 @@ if __name__ == "__main__":
 				if (abs(speed) < minThrottle and speed > 0):
 					speed = minThrottle
 				elif (abs(speed) < minThrottle and speed < 0):
-					speed = -minThrottle 
+					speed = -minThrottle
 
          #if (abs(speed) < minThrottle):
          #   #print("Start")
@@ -136,7 +135,6 @@ if __name__ == "__main__":
 		#drive.motor2.throttle = 0.5
 		#drive.motor3.throttle = 0.5
 		#drive.motor4.throttle = 0.5
-		#time.sleep(3)
 	finally:
 		drive.motor1.throttle = 0
 		drive.motor2.throttle = 0
@@ -144,4 +142,3 @@ if __name__ == "__main__":
 		drive.motor4.throttle = 0
 		pi.stop()
 		ser.close()
-		
