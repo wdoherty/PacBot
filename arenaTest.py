@@ -5,6 +5,29 @@ from adafruit_motorkit import MotorKit
 #from xbee import XBee
 import serial
 import struct
+import threading
+
+ser = serial.Serial(port='/dev/ttyS0',baudrate = 115200)
+xbee = serial.Serial('/dev/ttyUSB0', 9600)
+
+def monitorState(lock):
+	global state
+	global killFlag
+	killFlag = 0
+	while not killFlag:
+		try:
+			time.sleep(0.001)
+			if xbee.in_waiting > 0:
+				x = xbee.read().decode("utf-8")
+				if x == '$':
+					lock.acquire()
+					state = xbee.read().decode("utf-8")
+					localState = state
+					lock.release()
+					xbee.write(localState.encode())
+				xbee.reset_input_buffer()
+		except KeyboardInterrupt:
+			break
 
 if __name__ == "__main__":
 	global pos
@@ -13,6 +36,12 @@ if __name__ == "__main__":
 	global wheelD
 	global countsPer
 	global topSpeed
+	global state
+	global killFlag
+	state = 'P'
+	lock = threading.Lock()
+	t1 = threading.Thread(target=monitorState, args=(lock,))
+	t1.start()
 
 	trims = [0.0355,-0.05,0,-0.03]
 
@@ -22,8 +51,6 @@ if __name__ == "__main__":
 	dist = 0
 	wheelD = 2.3622 #2.362
 	countsPer = 142.0 #83.1978*2 #151.0
-
-	ser = serial.Serial(port='/dev/ttyS0',baudrate = 115200)
 
 	global error
 	global lastError
@@ -97,6 +124,10 @@ if __name__ == "__main__":
 
 		while (int(round(time.time()*1000))-startTime)<actualTimeout:
 #		while 1:
+			lock.acquire()
+			x = state
+			lock.release()
+			if x == 'P': break
 			dist = getDist1()
 			#print(dist)
 			time.sleep(0.05)
@@ -145,6 +176,10 @@ if __name__ == "__main__":
 
 		while (int(round(time.time()*1000))-startTime) < actualTimeout:
 #		while 1:
+			lock.acquire()
+			x = state
+			lock.release()
+			if x == 'P': break
 			dist = getDist2()
 			#print(dist)
 			#time.sleep(0.05)
@@ -183,7 +218,15 @@ if __name__ == "__main__":
 		#+PID1 = up
 		#-PID1 = down
 
-		#drivePID2(30, _kp, _ki, _kd)		
+		#drivePID2(30, _kp, _ki, _kd)
+		lock.acquire()
+		x = state
+		lock.release()
+		while x == 'P':
+			#print("initial pause")
+			lock.acquire()
+			x = state
+			lock.release()		
 
 		drivePID2(-5.3, _kp, _ki, _kd, 1500)		
 		drivePID1(12, _kp, _ki, _kd, 2000)
@@ -224,6 +267,8 @@ if __name__ == "__main__":
 		drive.motor2.throttle = 0
 		drive.motor3.throttle = 0
 		drive.motor4.throttle = 0
+		killFlag=1
+		t1.join()
 		pi.stop()
 		ser.close()
-		
+		xbee.close()
