@@ -13,7 +13,10 @@ if __name__ == "__main__":
 	global wheelD
 	global countsPer
 	global topSpeed
-	topSpeed = 0.4
+
+	trims = [0.0355,-0.05,0,-0.03]
+
+	topSpeed = 0.375
 	pos = 0
 	rotations = 0
 	dist = 0
@@ -68,14 +71,14 @@ if __name__ == "__main__":
 				wheelTicks = encoderValSigned
 		wheelRotations = wheelTicks/countsPer
 		wheelDist = wheelRotations*wheelD*3.14159
-		return -wheelDist
+		return wheelDist
 
 	def resetEncoders():
 		ser.write(bytes([60]))
 		for i in range(2):
 			encoderVal = struct.unpack("<L", ser.read(4))[0]	
 
-	def drivePID1(target, kp, ki, kd):
+	def drivePID1(target, kp=_kp, ki=_ki, kd=_kd, timeout=10000):
 		global error
 		global lastError
 
@@ -83,16 +86,20 @@ if __name__ == "__main__":
 		rotations = 0
 		dist = 0
 		speed = 0
-
+		startTime = int(round(time.time()*1000))
 		integral = 0
 		derivative = 0
+		actualTimeout = timeout
+#		if actualTimeout == -1:
+#			actualTimeout = 0.75*(abs(target)/topSpeed)
 
 		resetEncoders()
 
-		while(1):
+		while (int(round(time.time()*1000))-startTime)<actualTimeout:
+#		while 1:
 			dist = getDist1()
 			#print(dist)
-			#time.sleep(0.05)
+			time.sleep(0.05)
 			lastError = error
 			error = target - dist
 			integral += error
@@ -110,8 +117,8 @@ if __name__ == "__main__":
 					speed = minThrottle
 				elif (abs(speed) < minThrottle and speed < 0):
 					speed = -minThrottle 
-			drive.motor2.throttle = -speed
-			drive.motor3.throttle = -speed
+			drive.motor2.throttle = -(speed + (abs(target)/target)*trims[1]) 
+			drive.motor3.throttle = -(speed + (abs(target)/target)*trims[2])
 			if (abs(speed) <= minThrottle and abs(error) < 0.125):
 				drive.motor2.throttle = 0;
 				drive.motor3.throttle = 0;
@@ -120,7 +127,7 @@ if __name__ == "__main__":
 				break
 		print("rotations={0}".format(rotations))
 
-	def drivePID2(target, kp, ki, kd):
+	def drivePID2(target, kp=_kp, ki=_ki, kd=_kd, timeout=10000):
 		global error
 		global lastError
 
@@ -128,13 +135,16 @@ if __name__ == "__main__":
 		rotations = 0
 		dist = 0
 		speed = 0
-
+		startTime = int(round(time.time()*1000))
 		integral = 0
 		derivative = 0
-
+		actualTimeout = timeout
+#		if actualTimeout == -1:
+#			actualTimeout = 0.75*(abs(target)/topSpeed)
 		resetEncoders()
 
-		while(1):
+		while (int(round(time.time()*1000))-startTime) < actualTimeout:
+#		while 1:
 			dist = getDist2()
 			#print(dist)
 			#time.sleep(0.05)
@@ -154,8 +164,8 @@ if __name__ == "__main__":
 					speed = minThrottle
 				elif (abs(speed) < minThrottle and speed < 0):
 					speed = -minThrottle 
-			drive.motor1.throttle = -speed
-			drive.motor4.throttle = speed
+			drive.motor1.throttle = -(speed + (abs(target)/target)*trims[0])
+			drive.motor4.throttle = speed + (abs(target)/target)*trims[3]
 			if (abs(speed) <= minThrottle and abs(error) < 0.125):
 				drive.motor1.throttle = 0;
 				drive.motor4.throttle = 0;
@@ -168,13 +178,48 @@ if __name__ == "__main__":
 	drive = MotorKit()
 
 	try:
-		#drivePID1(12, _kp, _ki, _kd)
-		drivePID2(-10.75, _kp, _ki, _kd)
+		#-PID2 = left
+		#+PID2 = right	
+		#+PID1 = up
+		#-PID1 = down
 
-		#time.sleep(3)
+		#drivePID2(30, _kp, _ki, _kd)		
+
+		drivePID2(-5.3, _kp, _ki, _kd, 1500)		
+		drivePID1(12, _kp, _ki, _kd, 2000)
+		drivePID1(-0.75, _kp, _ki, _kd, 500)
+		drivePID2(1, _kp, _ki, _kd, 750)
+		drivePID2(-41.75, _kp, _ki, _kd, 15000)
+		drivePID1(-10.75, _kp, _ki, _kd)
+		drivePID2(7.2, _kp, _ki, _kd, 5000)
+		drivePID1(-10.75, _kp, _ki, _kd)
+		drivePID2(10.75, _kp, _ki, _kd)
+		drivePID2(-0.75, _kp, _ki, _kd, 750)
+		drivePID1(-1.5, timeout=750)
+		drivePID1(0.75, timeout=750)
+		drivePID2(20, timeout=15000)
+		drivePID2(-0.75, timeout = 750)
+		drivePID1(-12.5)
+		drivePID1(0.75, timeout=750)
+		drivePID2(39.25, timeout = 25000)
+		drivePID1(12.5)
+		drivePID1(-0.75, timeout = 750)
+		drivePID2(-17)
+		drivePID2(0.75)
+		drivePID1(10.5)
+		drivePID1(-0.75)
+		drivePID2(-10.5)
+		drivePID2(0.75)
+		drivePID1(20)
+
+		pass
+
+
+
+		
 	finally:
 		#print(getDist1())
-		print(getDist2())
+		#print(getDist2())
 		drive.motor1.throttle = 0
 		drive.motor2.throttle = 0
 		drive.motor3.throttle = 0
