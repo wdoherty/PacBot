@@ -13,12 +13,12 @@ if __name__ == "__main__":
 	global wheelD
 	global countsPer
 	global topSpeed
-	topSpeed = 0.3
+	topSpeed = 0.4
 	pos = 0
 	rotations = 0
 	dist = 0
-	wheelD = 2.362
-	countsPer = 155.0  #155.0
+	wheelD = 2.3622 #2.362
+	countsPer = 142.0 #83.1978*2 #151.0
 
 	ser = serial.Serial(port='/dev/ttyS0',baudrate = 115200)
 
@@ -26,9 +26,9 @@ if __name__ == "__main__":
 	global lastError
 	error = 0
 	lastError = 0
-	_kp = 0.10	#0.145	#0.165	#0.275 	#0.16 	0.0925  0.078
-	_ki = 0.005	#0.015	#0.02	#0.05	#0.0 	0.005   0.00
-	_kd = 0.1	#0.21	#0.175	#0.5 	#0.2  	0.0225 	0.045
+	_kp = 1.90	#0.10	#0.145	#0.165	#0.275 	#0.16 	0.0925  0.078
+	_ki = 0.0	#0.005	#0.015	#0.02	#0.05	#0.0 	0.005   0.00
+	_kd = 1.05	#0.1	#0.21	#0.175	#0.5 	#0.2  	0.0225 	0.045
 
 	minThrottle = 0.25
 	startThrottle = 0.8
@@ -91,8 +91,8 @@ if __name__ == "__main__":
 
 		while(1):
 			dist = getDist1()
-			# print(dist)
-			time.sleep(0.05)
+			#print(dist)
+			#time.sleep(0.05)
 			lastError = error
 			error = target - dist
 			integral += error
@@ -115,9 +115,10 @@ if __name__ == "__main__":
          #   drive.motor1.throttle = startThrottle * (-1 if speed < 0 else 1)
          #   time.sleep(startThrottleTime)
 
-			drive.motor2.throttle = speed
-			drive.motor3.throttle = speed
-			if (abs(speed) < minThrottle and abs(error) < 0.75):
+			drive.motor2.throttle = -speed
+			drive.motor3.throttle = -speed
+
+			if (abs(speed) <= minThrottle and abs(error) < 0.125):
 				drive.motor2.throttle = 0;
 				drive.motor3.throttle = 0;
 				time.sleep(0.5)
@@ -136,6 +137,7 @@ if __name__ == "__main__":
 		#drive.motor3.throttle = 0.5
 		#drive.motor4.throttle = 0.5
 	finally:
+		print(getDist1())
 		drive.motor1.throttle = 0
 		drive.motor2.throttle = 0
 		drive.motor3.throttle = 0
