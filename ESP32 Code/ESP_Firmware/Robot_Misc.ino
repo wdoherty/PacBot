@@ -2,7 +2,7 @@ float battery_voltage = 0.0;
 
 
 void updateVoltage() {
-  battery_voltage = analogRead(VOLTAGE_SENSE_PIN)*((PULLUP_RESISTOR+PULLDOWN_RESISTOR) / PULLDOWN_RESISTOR);
+  battery_voltage = ((float)analogRead(VOLTAGE_SENSE_PIN)/4095.0)*((PULLUP_RESISTOR+PULLDOWN_RESISTOR) / PULLDOWN_RESISTOR);
 }
 
 

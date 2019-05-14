@@ -39,6 +39,10 @@ bool reverseMotor[4] = { false, false, false, false };
 #define interrupt_M3B -1
 
 
+//MPU9250 Config
+#define MPU9250_ADDR 0x68
+
+
 
 //Robot Misc Config
 #define VOLTAGE_SENSE_PIN -1

@@ -11,6 +11,11 @@
 #include <Adafruit_PWMServoDriver.h>
 //END Drive Dependencies
 
+//START IMU Dependencies
+#include <MPU9250_asukiaaa.h>
+//END IMU Dependencies
+
+#define i2cClockFreq 1000000
 #define SERIAL_BAUD 115200
 #define CPU_FREQUENCY 80000000  //80 MHz
 #define TIMER_0_HZ 1000  //1kHz
@@ -20,8 +25,6 @@
 hw_timer_t* timer0 = NULL;
 portMUX_TYPE timer0_MUX = portMUX_INITIALIZER_UNLOCKED;
 volatile bool checkSensors = false;
-
-
 
 //20Hz Timer
 hw_timer_t* timer1 = NULL;
@@ -51,14 +54,14 @@ void setup() {
 
 void loop() {
   portENTER_CRITICAL(&timer0_MUX);
-  if (readVoltage) updateVoltage();
+  if (checkSensors) update_VL6180X_Dists();
   portEXIT_CRITICAL(&timer0_MUX);
 
 
 
 
   portENTER_CRITICAL(&timer1_MUX);
-  if (checkSensors) update_VL6180X_Dists();
+  if (readVoltage) updateVoltage();
   portEXIT_CRITICAL(&timer1_MUX);
   
 }

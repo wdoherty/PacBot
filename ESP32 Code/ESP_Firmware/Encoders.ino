@@ -66,7 +66,7 @@ void IRAM_ATTR M3B_Change() {
 }
 
 
-void zeroEncoders() {
+void zero_Encoders() {
   for (int i = 0; i < 4; i++) ticks[i] = 0;
 }
 
@@ -96,11 +96,11 @@ void setup_Encoders() {
   M0B_High = digitalRead(interrupt_M0B);  
 
   if (AUTOSTART_ENCODERS) {
-    startEncoderInterrupts();
+    start_Encoder_Interrupts();
   }
 }
 
-void startEncoderInterrupts() {
+void start_Encoder_Interrupts() {
   attachInterrupt(digitalPinToInterrupt(interrupt_M0A), M0A_Change, CHANGE);
   attachInterrupt(digitalPinToInterrupt(interrupt_M0B), M0B_Change, CHANGE);
   
