@@ -1,33 +1,41 @@
+from turtle import *
 
-
-class PacBotArena:
-    class LOI:
+class LOI:
         def __init__(self, data):   #[x, y, can_up, can_right, can_down, can_left]
             self.coords = (data[0], data[1])
             self.canMove = (data[2], data[3], data[4], data[5])
             
-        def getCoords():
+        def getCoords(self):
             return self.coords
         
-        def getX():
+        def getX(self):
             return self.coords[0]
         
-        def getY():
+        def getY(self):
             return self.coords[1]
         
-        def canMoveUp():
+        def canMoveUp(self):
             return self.canMove[0]
         
-        def canMoveRight():
+        def canMoveRight(self):
             return self.canMove[1]
         
-        def canMoveDown():
+        def canMoveDown(self):
             return self.canMove[2]
         
-        def canMoveLeft():
+        def canMoveLeft(self):
             return self.canMove[3]
 
-
+class PacBotArena:
+    def drawMap(self):
+        shape("circle")
+        
+        for row in self.map:
+            for location in row:
+                penup()
+                if location != None:
+                    goto(location.getX()*5, location.getY()*5)
+                    stamp()
 
     def __init__(self):#ORIGIN IS AT STARTING LOCATION
         L00 = [-43.75, 77, False, True, True, False]
@@ -43,7 +51,7 @@ class PacBotArena:
         L12 = [-15.75, 63, False, True, True, True]
         L13 = [-5.25, 63, True, True, False, True]
         L14 = [5.25, 63, True, True, False, True]
-        L14 = [15.75, 63, False, True, True, True]
+        L15 = [15.75, 63, False, True, True, True]
         L16 = [26.25, 63, True, True, True, True]
         L17 = [43.75, 63, True, False, True, True]
 
@@ -53,7 +61,7 @@ class PacBotArena:
         L22 = [-15.75, 52.5, True, True, False, False]
         L23 = [-5.25, 52.5, False, False, True, True]
         L24 = [5.25, 52.5, False, True, True, False]
-        L24 = [15.75, 52.5, True, False, False, True]
+        L25 = [15.75, 52.5, True, False, False, True]
         L26 = [26.25, 52.5, True, True, True, False]
         L27 = [43.75, 52.5, True, False, False, True]
 
@@ -61,7 +69,7 @@ class PacBotArena:
         L30 = [-15.75, 42, False, True, True, False]
         L31 = [-5.25, 42, True, True, False, True]
         L32 = [5.25, 42, True, True, False, True]
-        L33 = [15.75, 42. False, False, True, True]
+        L33 = [15.75, 42, False, False, True, True]
 
 
         L40 = [-26.25, 31.5, True, True, True, False]
@@ -70,8 +78,8 @@ class PacBotArena:
         L43 = [26.25, 31.5, True, False, True, True]
 
 
-        L50 = [-15.75, 26.25, True, True, True, False]
-        L51 = [15.75, 26.25, True, False, True, True]
+        L50 = [-15.75, 21, True, True, True, False]
+        L51 = [15.75, 21, True, False, True, True]
 
 
         L60 = [-43.75, 10.5, False, True, True, False]
@@ -79,7 +87,7 @@ class PacBotArena:
         L62 = [-15.75, 10.5, True, True, False, True]
         L63 = [-5.25, 10.5, False, False, True, True]
         L64 = [5.25, 10.5, False, True, True, False]
-        L64 = [15.75, 10.5, True, True, False, True]
+        L65 = [15.75, 10.5, True, True, False, True]
         L66 = [26.25, 10.5, True, True, True, True]
         L67 = [43.75, 10.5, False, False, True, True]
 
@@ -108,10 +116,10 @@ class PacBotArena:
         L89 = [43.75, -10.5, False, False, True, True]
 
 
-        L80 = [-43.75, -21, True, True, False, False]
-        L84 = [-5.25, -21, True, True, False, True]
-        L85 = [5.25, -21, True, True, False, True]
-        L89 = [43.75, -21, True, False, False, True]
+        L90 = [-43.75, -21, True, True, False, False]
+        L91 = [-5.25, -21, True, True, False, True]
+        L92 = [5.25, -21, True, True, False, True]
+        L93 = [43.75, -21, True, False, False, True]
 
         self.map = [
             [ LOI(L00),     None,       LOI(L01),   None,       LOI(L02),   LOI(L03),   None,       LOI(L04),   None,       LOI(L05)],
@@ -135,7 +143,9 @@ class PacBotArena:
 
 
 
+arena = PacBotArena()
 
+arena.drawMap()
 
 
 
