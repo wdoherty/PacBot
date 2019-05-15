@@ -57,12 +57,11 @@ void loop() {
   if (checkSensors) update_VL6180X_Dists();
   portEXIT_CRITICAL(&timer0_MUX);
 
-
-
-
   portENTER_CRITICAL(&timer1_MUX);
   if (readVoltage) updateVoltage();
   portEXIT_CRITICAL(&timer1_MUX);
+
+  handle_Communication();
   
 }
 

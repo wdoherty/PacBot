@@ -49,6 +49,17 @@ bool reverseMotor[4] = { false, false, false, false };
 #define PULLUP_RESISTOR 300000
 #define PULLDOWN_RESISTOR 100000
 
+//Serial Communication Config
+
+#define MSG_TIMEOUT 250 //ms
+#define START_BYTE 0x38 //arbitrary
+
+#define COMMAND_1 0x12
+#define COMMAND_2 0x25
+#define COMMAND_3 0x27
+#define COMMAND_4 0x31
+
+
 
 
 //VL6180X Config

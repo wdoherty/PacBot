@@ -1,5 +1,5 @@
 from turtle import *
-
+import time
 class LOI:
         def __init__(self, data):   #[x, y, can_up, can_right, can_down, can_left]
             self.coords = (data[0], data[1])
@@ -28,14 +28,36 @@ class LOI:
 
 class PacBotArena:
     def drawMap(self):
-        shape("circle")
-        
+        tur = Turtle()
+        tur.shape("arrow")
+        mode("logo")
+        tur.speed("fastest")
         for row in self.map:
             for location in row:
-                penup()
+                tur.penup()
                 if location != None:
-                    goto(location.getX()*5, location.getY()*5)
-                    stamp()
+                        if (location.canMoveUp()):
+                                tur.goto((location.getX()*6), (location.getY()*6)+10)
+                                tur.seth(0)
+                                time.sleep(0.01)
+                                tur.stamp()
+                        if (location.canMoveRight()):
+                                tur.goto((location.getX()*6)+10, (location.getY()*6))
+                                tur.seth(90)
+                                time.sleep(0.01)
+                                tur.stamp()
+
+                        if (location.canMoveDown()):
+                                tur.goto((location.getX()*6), (location.getY()*6)-10)
+                                tur.seth(180)
+                                time.sleep(0.01)
+                                tur.stamp()
+
+                        if (location.canMoveLeft()):
+                                tur.goto((location.getX()*6)-10, (location.getY()*6))
+                                tur.seth(270)
+                                time.sleep(0.01)
+                                tur.stamp()
 
     def __init__(self):#ORIGIN IS AT STARTING LOCATION
         L00 = [-43.75, 77, False, True, True, False]
