@@ -1,6 +1,7 @@
 //MESSAGE FORMAT:
 // [MSG_START]  [MSG_LEN] [MSG_0][MSG_1]...[MSG_N]  [CHECKSUM]
 //    1 BYTE      1 BYTE   -- -- N BYTES --  --  -    1 BYTE 
+//                                                  checksum is over msg_i bytes
 
 bool serialIdle = true;
 unsigned long startRead;

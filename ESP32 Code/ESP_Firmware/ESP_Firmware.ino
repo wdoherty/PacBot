@@ -31,6 +31,11 @@ hw_timer_t* timer1 = NULL;
 portMUX_TYPE timer1_MUX = portMUX_INITIALIZER_UNLOCKED;
 volatile bool readVoltage = false;
 
+volatile bool clearBuffer = false;
+
+enum mode {
+  WAITING, MOVE_INCHES, MOVE_WALL, MOVE_UNTIL
+};
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
@@ -54,12 +59,24 @@ void setup() {
 
 void loop() {
   portENTER_CRITICAL(&timer0_MUX);
-  if (checkSensors) update_VL6180X_Dists();
+  if (checkSensors) {
+    checkSensors = false;
+    update_VL6180X_Dists();
+  }
   portEXIT_CRITICAL(&timer0_MUX);
 
   portENTER_CRITICAL(&timer1_MUX);
-  if (readVoltage) updateVoltage();
+  if (readVoltage) {
+    readVoltage = false;
+    updateVoltage();
+  }
   portEXIT_CRITICAL(&timer1_MUX);
+
+  if (clearBuffer) {
+    clearBuffer = false;
+    while(Serial.available()) {Serial.read();}
+  }
+
 
   handle_Communication();
   

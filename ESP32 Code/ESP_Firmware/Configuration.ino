@@ -49,6 +49,8 @@ bool reverseMotor[4] = { false, false, false, false };
 #define PULLUP_RESISTOR 300000
 #define PULLDOWN_RESISTOR 100000
 
+#define CLEAR_BUFFER_PIN -1
+
 //Serial Communication Config
 
 #define MSG_TIMEOUT 250 //ms
