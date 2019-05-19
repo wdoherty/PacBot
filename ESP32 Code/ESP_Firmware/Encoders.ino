@@ -1,3 +1,8 @@
+#define TICKS_PER_MOTOR_REV 12
+#define GEAR_REDUCTION  33.3
+#define EFFECTIVE_WHEEL_DIAMETER  1.5 //inches
+#define ENCODER_TICK_LINEAR_DISTANCE (3.14159*EFFECTIVE_WHEEL_DIAMETER)/(TICKS_PER_MOTOR_REV*GEAR_REDUCTION)
+
 volatile long ticks[4] = { 0, 0, 0, 0 };
 
 volatile byte last_GPIO_M1 = -1;
@@ -17,52 +22,68 @@ volatile byte M2B_High = 0;
 volatile byte M3A_High = 0;
 volatile byte M3B_High = 0;
 
+volatile unsigned long lastTime[4] = { 0, 0, 0, 0 };
+volatile float velocity[4] = { 0.0, 0.0, 0.0, 0.0 };
+
+inline void IRAM_ATTR updateVelocity(int i, int dir) {
+  velocity[i] = ENCODER_TICK_LINEAR_DISTANCE / micros() - lastTime[i];
+  lastTime[i] = micros();
+}
+
 void IRAM_ATTR M0A_Change() {
   M0A_High = !M0A_High;
   if (M0B_High && M0A_High) ticks[0]++;
   last_GPIO_M1 = 'a';
+  updateVelocity(0, 1);
 }
 
 void IRAM_ATTR M0B_Change() {
   M0B_High = !M0B_High;
   if (M0A_High && M0B_High) ticks[0]--;
   last_GPIO_M1 = 'b';
+  updateVelocity(0, -1);
 }
 
 void IRAM_ATTR M1A_Change() {
   M1A_High = !M1A_High;
   if (M1B_High && M1A_High) ticks[1]++;
   last_GPIO_M2 = 'a';
+  updateVelocity(1, 1);
 }
 
 void IRAM_ATTR M1B_Change() {
   M1B_High = !M1B_High;
   if (M1A_High && M1B_High) ticks[1]--;
   last_GPIO_M2 = 'b';
+  updateVelocity(1, -1);
 }
 
 void IRAM_ATTR M2A_Change() {
   M2A_High = !M2A_High;
   if (M2B_High && M2A_High) ticks[2]++;
   last_GPIO_M3 = 'a';
+  updateVelocity(2, 1);
 }
 
 void IRAM_ATTR M2B_Change() {
   M2B_High = !M2B_High;
   if (M2A_High && M2B_High) ticks[2]--;
   last_GPIO_M3 = 'b';
+  updateVelocity(2, -1);
 }
 
 void IRAM_ATTR M3A_Change() {
   M3A_High = !M3A_High;
   if (M3B_High && M3A_High) ticks[3]++;
   last_GPIO_M4 = 'a';
+  updateVelocity(3, 1);
 }
 
 void IRAM_ATTR M3B_Change() {
   M3B_High = !M3B_High;
   if (M3A_High && M3B_High) ticks[3]--;
   last_GPIO_M4 = 'b';
+  updateVelocity(3, -1);
 }
 
 
