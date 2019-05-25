@@ -11,11 +11,11 @@
 
 #define NUM_SENSORS 4
 
-typedef struct TOF_Specs {
+typedef struct TOF_specs {
     int ReadyPin;
     int InterruptPin;
     int i2cAddress;
-};
+} TOF_specs;
 
 
 
@@ -23,7 +23,7 @@ class VL6180X_Group {
     public:
         uint32_t Distances[NUM_SENSORS] = { 0, 0, 0, 0 };
 
-        VL6180X_Group(TOF_Specs* SensorSpecs);
+        VL6180X_Group(TOF_specs* SensorSpecs);
         void startInterrupts();
         void endInterrupts();
 

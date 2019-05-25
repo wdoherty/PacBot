@@ -1,5 +1,36 @@
-#include <Arduino.h>
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_system.h"
+#include "driver/gpio.h"
+
+//#include <Arduino.h>
 #include "TOF.h"
+
+#define BOARD_LED GPIO_NUM_13
+
+uint32_t timeout_millis = 1000;
+
+void test_task(void *arg0) {
+    gpio_pad_select_gpio(BOARD_LED);
+    gpio_set_direction(BOARD_LED, GPIO_MODE_OUTPUT);
+
+    while (true) {
+        gpio_set_level(BOARD_LED, 0);
+        vTaskDelay(timeout_millis / portTICK_RATE_MS);
+        gpio_set_level(BOARD_LED, 1);
+        vTaskDelay(timeout_millis / portTICK_PERIOD_MS);
+    }
+}
+
+void app_main() {
+    xTaskCreate(&test_task, "test", 512, NULL, 5, NULL);
+}
+
+void setup(){}
+void loop(){}
+
+
 
 // // volatile int state = -1;
 
