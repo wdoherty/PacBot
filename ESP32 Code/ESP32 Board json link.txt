@@ -1,0 +1,7 @@
+Add to "Additional Boards Manager URLS" in Arduino -> File -> Preferences
+
+https://dl.espressif.com/dl/package_esp32_index.json
+
+Go to Tools -> Board -> Board Manager
+
+Search "ESP32" and install latest version of "esp32 by Espressif Systems"
