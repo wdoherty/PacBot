@@ -1,7 +1,7 @@
 
 class encoder {
     public:
-        encoder(int pin_A, int pin_B);
+        encoder(int A, int B);
         void resetTicks();
         int get_ticks();
 
@@ -12,4 +12,6 @@ class encoder {
         int pin_A;
         int pin_B;
         int ticks;
-}
+        bool A_state;
+        bool B_state;
+};
