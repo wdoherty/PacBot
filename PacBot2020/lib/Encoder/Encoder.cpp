@@ -1,4 +1,5 @@
 #include "Encoder.h"
+
 #include <Arduino.h>
 encoder::encoder(int A, int B) {
     pin_A = A;
