@@ -1,7 +1,9 @@
 #include "Encoder.h"
 
-encoder::encoder(int pin_A, int pin_B) {
-
+encoder::encoder(int A, int B) {
+    pin_A = A;
+    pin_B = B;
+    ticks = 0;
 }
 
 void encoder::resetTicks() {
