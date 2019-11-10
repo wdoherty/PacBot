@@ -3,7 +3,7 @@
 #include <Encoder.h>
 #include "pins.h"
 
-Adafruit_PWMServoDriver pwm;
+Adafruit_PWMServoDriver* pwm;
 
 Encoder* enc1;
 Encoder* enc2;
@@ -11,10 +11,10 @@ Encoder* enc3;
 Encoder* enc4;
 
 void setup() {
-  pwm = Adafruit_PWMServoDriver(0x48);
+  pwm = new Adafruit_PWMServoDriver(0x48);
   Serial.begin(9600);
-  pwm.begin();
-  pwm.setPWMFreq(500);  // This is the maximum PWM frequency
+  pwm->begin();
+  pwm->setPWMFreq(500);  // This is the maximum PWM frequency
   pinMode(ENC1A, INPUT);
   pinMode(ENC1B, INPUT);
   pinMode(ENC2A, INPUT);
@@ -40,15 +40,7 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  // while(1)
-  // {
-  //   pwm.setPWM(0, 0, 2048);
-  //   pwm.setPWM(1, 0, 0);
-  //   delay(2000);
-  //   pwm.setPWM(0, 0, 0);
-  //   delay(2000);
-  // }
+
 }
 
 
