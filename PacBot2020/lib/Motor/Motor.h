@@ -3,14 +3,24 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+#include "../Adafruit_PWM_Servo_Driver_Library/Adafruit_PWMServoDriver.h"
+
+/* max speed in percent of full voltage*/
+#define MAX_SPEED       75
+
+/* pwm resolution */
+#define PWM_RESOLUTION  4095
+
 class Motor {
     public:
-        Motor(int pin_a, int pin_b);
-        void set_velocity(int speed)
+        Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm);
+        void set_pwm_speed(int speed);
 
     private:
-        int requested_speed = 0;
-
+        Adafruit_PWMServoDriver* _pwm;
+        int _requested_pwm = 0;
+        int _pin_a;
+        int _pin_b
 
 }
 

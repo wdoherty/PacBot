@@ -5,10 +5,10 @@
 
 Adafruit_PWMServoDriver pwm;
 
-encoder* enc1;
-encoder* enc2;
-encoder* enc3;
-encoder* enc4;
+Encoder* enc1;
+Encoder* enc2;
+Encoder* enc3;
+Encoder* enc4;
 
 void setup() {
   pwm = Adafruit_PWMServoDriver(0x48);
@@ -24,10 +24,10 @@ void setup() {
   pinMode(ENC4A, INPUT);
   pinMode(ENC4B, INPUT);
 
-  enc1 = new encoder(ENC1A, ENC1B);
-  enc2 = new encoder(ENC2A, ENC2B);
-  enc3 = new encoder(ENC3A, ENC3B);
-  enc4 = new encoder(ENC4A, ENC4B);
+  enc1 = new Encoder(ENC1A, ENC1B);
+  enc2 = new Encoder(ENC2A, ENC2B);
+  enc3 = new Encoder(ENC3A, ENC3B);
+  enc4 = new Encoder(ENC4A, ENC4B);
 
   attachInterrupt(ENC1A, enc1->pin_change_a, CHANGE);
   attachInterrupt(ENC1B, enc1->pin_change_b, CHANGE);
