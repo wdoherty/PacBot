@@ -113,6 +113,25 @@ void Adafruit_PWMServoDriver::setPWMFreq(float freq) {
 #endif
 }
 
+
+/**************************************************************************/
+/*! 
+    @brief  Sets the PWM output of one of the PCA9685 pins
+    @param  num One of the PWM output pins, from 0 to 15
+    @param  on At what point in the 4096-part cycle to turn the PWM output ON
+    @param  off At what point in the 4096-part cycle to turn the PWM output OFF
+*/
+/**************************************************************************/
+void Adafruit_PWMServoDriver::setPWM(uint8_t num, uint16_t val) {
+  _i2c->beginTransmission(_i2caddr);
+  _i2c->write(LED0_ON_L+4*num);
+  _i2c->write(0);
+  _i2c->write(0>>8);
+  _i2c->write(val);
+  _i2c->write(val>>8);
+  _i2c->endTransmission();
+}
+
 /**************************************************************************/
 /*! 
     @brief  Sets the PWM output of one of the PCA9685 pins
