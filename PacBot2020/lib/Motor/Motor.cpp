@@ -1,9 +1,5 @@
 #include "Motor.h"
-
-#define min(a,b)                        ( (a) < (b) ? (a) : (b) )
-#define max(a,b)                        ( (a) > (b) ? (a) : (b) )
-#define constrain(x, minimum, maximum)  ( min( max(x, minimum), maximum ) )
-#define abs(x)                          ( (x) > 0 ? (x) : -1*(x) )
+#include "../Helpers/Helpers.h"
 
 Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm) {
     _pin_a = pin_a;                                             // store the pin numbers on the PCA chip for this motor driver
@@ -12,8 +8,10 @@ Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm) {
 }
 
 
-void Motor::set_pwm_speed(int speed) {
-    _requested_pwm = constrain(speed,-MAX_SPEED, MAX_SPEED);    // constrain input to [-MAX_SPEED, MAX_SPEED]
+void Motor::set_pwm_speed(double speed) {
+    int speed_percent = speed / ((double)MOTOR_KV * (double)V_MAX);
+
+    _requested_pwm = constrain(speed_percent,-MAX_SPEED, MAX_SPEED);    // constrain input to [-MAX_SPEED, MAX_SPEED]
 
     float magnitude = abs(_requested_pwm) / 100;                // get magnitude 0-1 scalar
     int dir = (_requested_pwm > 0) ? 1 : -1;                    // get direction to spin
