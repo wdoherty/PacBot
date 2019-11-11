@@ -24,12 +24,7 @@ class Motor {
         Adafruit_PWMServoDriver* _pwm;
         int _requested_pwm = 0;
         int _pin_a;
-<<<<<<< HEAD
-        int _pin_b
-
-=======
         int _pin_b;
->>>>>>> 84fb7f7f028e25b344d0c102fc21b3e321c7ac3b
 };
 
 #endif
