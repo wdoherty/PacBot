@@ -8,6 +8,11 @@ Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm) {
 }
 
 
+/* set_pwm_speed
+*   INPUTS: double speed - speed in RPM (fully theoretical)
+*   OUTPUTS: None
+*   SIDE EFFECTS: Modifies the channels on the PCA driver to set the voltages to theoretically set the requested RPM
+*/
 void Motor::set_pwm_speed(double speed) {
     int speed_percent = speed / ((double)MOTOR_KV * (double)V_MAX);
 
