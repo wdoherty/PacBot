@@ -1,9 +1,16 @@
 #include "Encoder.h"
-#include <Arduino.h>
+
+#define STEPS_PER_MINUTE        (60000 / TICK_STEP_SIZE_MS)
+#define TICKS_PER_ROTATION      225
+#define get_time_step()         ( millis() / (int)TICK_STEP_SIZE_MS )
+#define TICK_PER_STEP_TO_RPM(x) ( (x) * STEPS_PER_MINUTE / TICKS_PER_ROTATION )
+
 
 Encoder::Encoder(int A, int B) {
     pin_A = A;
     pin_B = B;
+    pinMode(pin_A, INPUT);
+    pinMode(pin_B, INPUT);
     A_state = digitalRead(pin_A);
     B_state = digitalRead(pin_B);
     ticks = 0;
@@ -13,58 +20,75 @@ void Encoder::resetTicks() {
     ticks = 0;
 }
 
-int Encoder::get_ticks() {
+long Encoder::get_ticks() {
+    Serial.printf("Y:%ld\n", ticks);
     return ticks;
 }
 
-void Encoder::pin_change_a() {
-    unsigned long start_time = ESP.getCycleCount();
-    A_state = !A_state;
-    if(A_state == B_state) {
+void IRAM_ATTR Encoder::pin_change_a() {
+    A_state = (A_state == 0) ? 1 : 0;
+    if ( A_state != B_state ) {
         ticks++;
-        return;
     } else {
         ticks--;
     }
 
     //DO LOCK
     portENTER_CRITICAL_ISR(&tick_mux);
-    tick_time[tick_hist_idx] = start_time;
-    tick_pos[(tick_hist_idx++ % NUM_TICK_TIMES)] = ticks;
+    int time_step = get_time_step();
+    last_hist_idx = get_time_step_index(time_step);
+    history[last_hist_idx].tick_pos = ticks;
+    history[last_hist_idx].time = time_step;
+    if (last_hist_idx == 0) velocity_ready = true;
     portEXIT_CRITICAL_ISR(&tick_mux);
     //RELEASE LOCK
 }
 
-void Encoder::pin_change_b() {
-    unsigned long start_time = ESP.getCycleCount();
-    B_state = !B_state;
-    if(B_state == A_state) {
-        ticks++;
-        return;
-    } else {
-        ticks--;
-    }
-
-    //DO LOCK
-    portENTER_CRITICAL_ISR(&tick_mux);
-    tick_time[tick_hist_idx] = start_time;
-    tick_pos[(tick_hist_idx++ % NUM_TICK_TIMES)] = ticks;
-    portEXIT_CRITICAL_ISR(&tick_mux);
-    //RELEASE LOCK
+void IRAM_ATTR Encoder::pin_change_b() {
+    B_state = (B_state == 0) ? 1 : 0;
 }
 
 double Encoder::get_velocity() {
-    double velocity = 0.0;
-    double sum_instant_vel = 0.0;
+    if (!velocity_ready) {
+        printf("ERR\n");
+        return 0.0;
+    }
 
     //DO LOCK
     portENTER_CRITICAL(&tick_mux);
-    for (int i = 0; i < NUM_TICK_TIMES; i++) {
-        sum_instant_vel += (tick_pos[(tick_hist_idx+1+i)%NUM_TICK_TIMES] - tick_pos[(tick_hist_idx+i)%NUM_TICK_TIMES]) / (tick_time[(tick_hist_idx+1+i)%NUM_TICK_TIMES] - tick_time[(tick_hist_idx+i)%NUM_TICK_TIMES]);
+    double vel_sum = 0.0;
+    int vel_count = 0;
+
+    for (int i = 0; i < NUM_STEPS_TO_AVERAGE; i++) {
+        tick_hist_t end = history[(last_hist_idx - i + NUM_TICK_STEPS) % NUM_TICK_STEPS];
+        int end_time = end.time;
+        if (get_time_step() > end_time+NUM_STEPS_TO_AVERAGE) break;
+
+        int j = 1;
+        for (; j < NUM_STEPS_TO_AVERAGE - i - 1; j++) {
+            if (end_time - history[(last_hist_idx - i - j + NUM_TICK_STEPS) % NUM_TICK_STEPS].time == j) break;
+        }
+
+        if (j == NUM_STEPS_TO_AVERAGE - i - 1) break;
+
+        tick_hist_t start = history[(last_hist_idx - i - j + NUM_TICK_STEPS) % NUM_TICK_STEPS];
+        vel_sum += (double)(end.tick_pos - start.tick_pos); /* velocity in terms of ticks per time step */
+        //Serial.printf("D:%ld\n",(end.tick_pos - start.tick_pos) );
+
+        vel_count += j;
+        i += (j-1);
     }
     portEXIT_CRITICAL(&tick_mux);
     //RELEASE LOCK
 
-    velocity = sum_instant_vel / (double)NUM_TICK_TIMES;
-    return velocity;
+    //Serial.printf("S:%f\tC:%d\n",vel_sum, vel_count);
+
+    double velocity = (vel_count == 0) ? 0.0 : vel_sum / (double)vel_count;
+    //printf("%f\n\n\n", velocity);
+    return TICK_PER_STEP_TO_RPM(velocity);
+}
+
+int IRAM_ATTR Encoder::get_time_step_index(int time_step) {
+    int delta_t = time_step - history[last_hist_idx].time;
+    return (last_hist_idx + delta_t) % NUM_TICK_STEPS;
 }

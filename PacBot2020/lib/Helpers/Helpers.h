@@ -1,10 +1,6 @@
 #ifndef HELPERS_H
 
-#define min(a,b)                        ( (a) < (b) ? (a) : (b) )
-#define max(a,b)                        ( (a) > (b) ? (a) : (b) )
-#define constrain(x, minimum, maximum)  ( min( max(x, minimum), maximum ) )
-#define abs(x)                          ( (x) > 0 ? (x) : -1*(x) )
-
+#define CYCLES_TO_MS(x)            ( (x) / ((double)240110.3) )
 
 typedef struct PID_settings_t {
     double kp;

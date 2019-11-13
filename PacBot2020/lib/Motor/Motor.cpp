@@ -14,13 +14,17 @@ Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm) {
 *   SIDE EFFECTS: Modifies the channels on the PCA driver to set the voltages to theoretically set the requested RPM
 */
 void Motor::set_pwm_speed(double speed) {
-    int speed_percent = speed / ((double)MOTOR_KV * (double)V_MAX);
+    if (speed > 0) speed = max(speed, (double)MIN_RPM);
+    int speed_percent = 100 * speed * GEAR_RATIO / ((double)MOTOR_KV * (double)V_MAX);
 
+    Serial.printf("S:%d\n",speed_percent);
     _requested_pwm = constrain(speed_percent,-MAX_SPEED, MAX_SPEED);    // constrain input to [-MAX_SPEED, MAX_SPEED]
 
-    float magnitude = abs(_requested_pwm) / 100;                // get magnitude 0-1 scalar
+    float magnitude = abs(_requested_pwm) / (float)100.0;                // get magnitude 0-1 scalar
     int dir = (_requested_pwm > 0) ? 1 : -1;                    // get direction to spin
 
+    
+    Serial.printf("M:%f\n",magnitude);
     int pin_a_val = 0;
     int pin_b_val = 0;
 
@@ -29,7 +33,7 @@ void Motor::set_pwm_speed(double speed) {
     } else {
         pin_b_val = (PWM_RESOLUTION * magnitude);
     }
-
+    Serial.printf("PWM:%d\t%d\n",pin_a_val, pin_b_val);
     _pwm->setPWM(_pin_a, pin_a_val);                            // set the pwm values of those pins on the PCA9685
     _pwm->setPWM(_pin_b, pin_b_val);
 }

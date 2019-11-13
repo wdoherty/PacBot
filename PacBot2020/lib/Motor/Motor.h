@@ -6,8 +6,12 @@
 /* max speed in percent of full voltage*/
 #define MAX_SPEED       75
 
+#define MIN_RPM         90
+
 /* kv of the mabuchi motor */
 #define MOTOR_KV        1920
+
+#define GEAR_RATIO      100
 
 /* max voltage [volts] */
 #define V_MAX       12
