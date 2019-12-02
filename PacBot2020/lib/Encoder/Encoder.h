@@ -6,9 +6,9 @@
 #include <Arduino.h>
 #include "../Helpers/Helpers.h"
 
-#define TICK_STEP_SIZE_MS       50      
+#define TICK_STEP_SIZE_MS       25      
 #define NUM_TICK_STEPS          20
-#define NUM_STEPS_TO_AVERAGE    3
+#define NUM_STEPS_TO_AVERAGE    10
 
 typedef struct tick_hist {
     long tick_pos;

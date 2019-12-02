@@ -28,7 +28,7 @@ PID::PID(double* Input, double* Output, double* Setpoint,
     PID::SetOutputLimits(0, 255);				//default output limit corresponds to
 												//the arduino pwm limits
 
-    SampleTime = 100;							//default Controller Sample Time is 0.1 seconds
+    SampleTime = 10;							//default Controller Sample Time is 0.01 seconds
 
     PID::SetControllerDirection(ControllerDirection);
     PID::SetTunings(Kp, Ki, Kd, POn);
@@ -66,6 +66,13 @@ bool PID::Compute()
       double input = *myInput;
       double error = *mySetpoint - input;
       double dInput = (input - lastInput);
+      if (abs(error) < MIN_ERROR) {
+         *myOutput = 0;
+         lastInput = input;
+         lastTime = now;
+         return true;
+      }
+      //Serial.printf("I:%f\tS:%f\tE:%f", input, *mySetpoint, error);
       outputSum+= (ki * error);
 
       /*Add Proportional on Measurement, if P_ON_M is specified*/

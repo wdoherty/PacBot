@@ -50,7 +50,7 @@ void IRAM_ATTR Encoder::pin_change_b() {
 
 double Encoder::get_velocity() {
     if (!velocity_ready) {
-        printf("ERR\n");
+        //printf("ERR\n");
         return 0.0;
     }
 

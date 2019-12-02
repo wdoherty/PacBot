@@ -2,6 +2,9 @@
 #define PID_v1_h
 #define LIBRARY_VERSION	1.1.1
 
+/* min rpm error */
+#define MIN_ERROR 5
+
 class PID
 {
 
