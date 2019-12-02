@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="stylesheet.css">
+    <title></title>
+</head>
+<body>
+    <div class="row">
+        <div id="header" align="center">
+            <h1 style="font:bold 25px ">iRobotics PacBot Control Station</h1>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-1 flexVert" id="batteryDisp" style="padding-bottom: 0.75rem;">
+            <center>
+                <div class="battery">
+                    <div id="battTop" style="width: 35%; background-color: #ccc; min-height: 1.25rem; font-size: 0.1rem; border: 2px solid #333;">
+                        &nbsp;
+                    </div>
+                    <div id="battBottom" style="width: 80%; background-color: #ccc; height: 12rem; border: 2px solid #333;">
+                        <div id="battBackground" style="position:relative; margin: 0.75rem; max-height: 90%; background-color:#666;">
+                            <div id="batteryCapacity" style="position:absolute; bottom: -10rem; height: 10rem; width: 100%; background-color:#0a0;">
+                                
+                            </div>
+                            <span id="batt_voltage" style="position:absolute; bottom: -10rem; left: 0.25rem; font-size: 2.5rem;">12.6v</span>
+                        </div>
+                    </div>
+                </div>
+            </center>
+        </div>
+
+        <div class="col-2 flexVert" id ="motorDisp">
+            <div class="motor">
+                Motor 0: <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor0Val" style="position:absolute; left: 5rem; height: 1.5rem; background-color: #f00; width: 1rem; z-index: 0"></div>
+                </div>
+                <span id=Motor0RPM">0 RPM</span>
+            </div>
+            <div class="motor">
+                Motor 1:
+                <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor1Val" style="position:absolute; left: 5rem; height: 1.5rem; background-color: #f00; width: 0rem; z-index: 0"></div>
+                </div> 
+                <span id=Motor1RPM">0 RPM</span>
+            </div>
+            <div class="motor">
+                Motor 2: <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor2Val" style="position:absolute; right: 5rem; height: 1.5rem; background-color: #f00; width: 2rem; z-index: 0"></div>
+                </div>
+                <span id=Motor2RPM">0 RPM</span>
+            </div>
+            <div class="motor">
+                Motor 3: <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor3Val" style="position:absolute; left: 5rem; height: 1.5rem; background-color: #f00; width: 3rem; z-index: 0"></div>
+                </div>
+                <span id=Motor3RPM">0 RPM</span>
+            </div>
+        </div>
+
+        <div class="col-3" id="direction">
+            <img id="dir-pacman" src="https://ui-ex.com/images/pacman-transparent-gif-5.gif" style="transform: rotate(0deg);"/>
+        </div>
+
+        <div class="col-4" id="control-section">
+            <div id="currentActivity">
+                Current Activity
+            </div>
+            <div id="manualSwitch">
+                Manual Control Switch
+            </div>
+            <div id="Update">
+                Update Firmware
+            </div>
+            <div id="Configure">
+                Configure Button
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+            <div class="col-1a" style="display:flex; flex-direction: column;">
+                <div style="background-color: #ccc; width: 90%; margin: 1rem auto; vertical-align: baseline;">
+                    Remaining: <span id="timer" style="color:darkslategray;text-shadow: 0.1rem 0.1rem #113758;">3:00</span>
+                </div>
+                
+                <div style="background-color: #ccc;height: 8rem; margin: 1rem;">
+                    More data?
+                </div>
+            </div>
+
+            <div class="col-23">
+                <div id="pacbot_frame">
+                    <div id="pacbot" style="transform: rotate(10deg);">
+                        <div class="smallArrow" id="gameArrow" style="transform: rotate(-135deg)"></div>
+                        <div class="largeArrow" id="orientationArrow" style="transform: rotate(-135deg)"></div>
+                        <div class="TOF TOF_Horiz" id="TOF_0" style="width: 3rem;"></div>
+                        <div class="TOF TOF_Horiz" id="TOF_1" style="width: 6rem;"></div>
+                        <div class="TOF TOF_Vert" id="TOF_2" style="height: 2rem;"></div>
+                        <div class="TOF TOF_Vert" id="TOF_3" style="height: 4rem;"></div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-4" id="logging">
+                <div id="logger" class="console"></div>
+            </div>
+        </div>
+        
+        
+    <script>
+    var console = {};
+    var logger = document.getElementById("logger");
+
+    console.log = function(text)
+    {
+        var time = document.getElementById("timer").innerHTML;
+
+        var el = document.createElement("div");
+        var sp1 = document.createElement("span");
+        var sp2 = document.createElement("span");
+
+        el.className = "LogItem";
+        sp1.innerHTML = time;
+        sp2.innerHTML = text;
+
+        el.appendChild(sp1);
+        el.appendChild(sp2);
+
+        logger.insertBefore(el, logger.childNodes[0]);
+    }
+    
+    </script>
+
+
+    <script>
+        setInterval(function () {
+            rotate();
+        }, 1000); //2000mSeconds update rate
+
+        function rotate() {
+            var newAngle = (parseInt(document.getElementById("dir-pacman").style.transform.replace(/[^\d.]/g, '')) + 90) % 360;
+            var newStr = "rotate(" + newAngle + "deg)";
+            //console.log(newStr);
+            document.getElementById("dir-pacman").style.transform = newStr;
+
+
+            var batt = document.getElementById("batteryCapacity");
+            var newHeight = (parseInt(batt.style.height.replace("rem", "")) - 1);
+            if (newHeight < 0) newHeight = newHeight + 11;
+            batt.style.height = String(newHeight) + 'rem';
+
+
+            
+
+            switch (Math.floor(Math.random()*5)) {
+                case (0):
+                    console.log("Intersection Reached");
+                    break;
+                case (1):
+                    console.log("Wall Reached");
+                    break;
+                case (2):
+                    console.log("Moving");
+                    break;
+                case (3):
+                    console.log("Corner Reached");
+                    break;
+                case (4):
+                    console.log("Stopped");
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        setInterval(function () {
+            rotateArrow();
+        }, 25); //2000mSeconds update rate
+
+        function rotateArrow() {
+            var newAngle = (parseInt(document.getElementById("orientationArrow").style.transform.replace(/[^\d.]/g, '')) + 3) % 360;
+            var newStr = "rotate(" + newAngle + "deg)";
+            document.getElementById("orientationArrow").style.transform = newStr;
+        }
+    </script>
+    <script>
+        var timerInterval = setInterval(function () {
+                updateClock();
+            }, 100); //2000mSeconds update rate
+        
+        function updateClock() {
+            var timer = document.getElementById("timer");
+            var time = timer.innerHTML.split(':');
+            var seconds = parseInt(time[0])*60 + parseInt(time[1]);
+            if (seconds > 0) {
+                var newSeconds = seconds - 1;
+                var newTime;
+                if (newSeconds%60 < 10) {
+                    newTime = String(Math.floor(newSeconds / 60)) + ':0' + String(newSeconds % 60);
+                } else {
+                    newTime = String(Math.floor(newSeconds / 60)) + ':' + String(newSeconds % 60);
+                }
+                
+                var color = '#000';
+
+                if (newSeconds < 5) {
+                    if (newSeconds % 2 == 0) {
+                        color = '#eed202';
+                    } else {
+                        color = '#ff0000';
+                    }
+                } else if (newSeconds == 15) {
+                    color = '#ff0000'
+                } else if (newSeconds == 30) {
+                    color = '#F38022';
+                } else if (newSeconds == 60) {
+                    color = '#eed202';
+                }
+                if (color != '#000') timer.style.color = color;
+                timer.innerHTML = newTime;
+            } else {
+                timer.style.color = '#121F26';
+                clearInterval(timerInterval);
+
+                
+
+            }
+        }
+    </script>
+</body>
+</html>

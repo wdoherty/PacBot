@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="stylesheet.css">
+    <title></title>
+</head>
+<body>
+    <div class="row">
+        <div id="header" align="center">
+            <h1 style="font:bold 25px ">iRobotics PacBot Control Station</h1>
+        </div>
+    </div>
+
+    <div class="row config_row">
+        <form action="/get" method="get" autocomplete="off" name="drive1">
+            <div class="col-1 friction_config">
+                <legend>Friction Compensation</legend>
+                <table>
+                    <tr>
+                        <td><span>Static Coefficient (+):</span></td>
+                        <td><input type="text" name="stp" value="STATIC_POSITIVE_PLACEHOLDER"></td>
+                    </tr>
+                    <tr>
+                        <td><span>Dynamic Coefficient (+):</span></td>
+                        <td><input type="text" name="dyp" value="DYNAMIC_POSITIVE_PLACEHOLDER"></td>
+                    </tr>
+                    <tr>
+                        <td><span>Static Coefficient (-):</span></td>
+                        <td><input type="text" name="stn" value="STATIC_NEGATIVE_PLACEHOLDER"></td>
+                    </tr>
+                    <tr>
+                        <td><span>Dynamic Coefficient (-):</span></td>
+                        <td><input type="text" name="dyn" value="DYNAMIC_NEGATIVE_PLACEHOLDER"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-2 flexVert">
+                <legend>Velocity Controller</legend>
+                <table>
+                    <tr>
+                        <td><span>Kp</span></td>
+                        <td><input type="text" name="kp" value="KP_PLACEHOLDER"></td>
+                    </tr>
+                    <tr>
+                        <td><span>Ki</span></td>
+                        <td><input type="text" name="ki" value="KI_PLACEHOLDER"></td>
+                    </tr>
+                    <tr>
+                        <td><span>Kd</span></td>
+                        <td><input type="text" name="kd" value="KD_PLACEHOLDER"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="col-3 flexVert">
+                <button type="submit" name="drive" value="1">Update</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -37,7 +37,12 @@ class Drive {
         void control_loop();
 
 
+        double _kp;
+        double _ki;
+        double _kd;
+        
         friction_vals_t _fric;
+        PID* controller;
     private:
 
         double fric_comp(double w);
@@ -50,11 +55,7 @@ class Drive {
         Encoder* _enc;
         Motor* _motor;
 
-        PID* controller;
 
-        double _kp;
-        double _ki;
-        double _kd;
 
 
 
