@@ -10,7 +10,7 @@ pid_values_t pid_1, pid_2, pid_3, pid_4;
 Drive *drive1, *drive2, *drive3, *drive4;
 Drive *Drives[4] = { drive1, drive2, drive3, drive4 };
 
-void setup_drive_system(Drive* (*maindrives)[4]) {
+void setup_drive_system(Drive *maindrives[4]) {
   pwm = new Adafruit_PWMServoDriver(0x48);
   pwm->begin();
   pwm->setPWMFreq(500);  // This is the maximum PWM frequency
@@ -99,12 +99,10 @@ void setup_drive_system(Drive* (*maindrives)[4]) {
   drive3 = new Drive(enc3, mot3, pid_3, fric_3);
   drive4 = new Drive(enc4, mot4, pid_4, fric_4);
 
-  (*maindrives)[0] = drive1;
-  (*maindrives)[1] = drive2;
-  (*maindrives)[2] = drive3;
-  (*maindrives)[3] = drive4;
-
-
+  maindrives[0] = drive1;
+  maindrives[1] = drive2;
+  maindrives[2] = drive3;
+  maindrives[3] = drive4;
 
   drive1->set_speed(0);
   drive2->set_speed(0);
@@ -120,9 +118,9 @@ void setup_drive_system(Drive* (*maindrives)[4]) {
   attachInterrupt(ENC4A, enc4a_change, CHANGE);
   attachInterrupt(ENC4B, enc4b_change, CHANGE);
 
-  xTaskCreatePinnedToCore(drive_loop_1, "Vel_Controller_1", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+//  xTaskCreatePinnedToCore(drive_loop_1, "Vel_Controller_1", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
   //xTaskCreatePinnedToCore(drive_loop_2, "Vel_Controller_2", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
-  xTaskCreatePinnedToCore(drive_loop_3, "Vel_Controller_3", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+//  xTaskCreatePinnedToCore(drive_loop_3, "Vel_Controller_3", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
   //xTaskCreatePinnedToCore(drive_loop_4, "Vel_Controller_4", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
 
 }

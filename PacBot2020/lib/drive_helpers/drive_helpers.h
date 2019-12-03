@@ -13,7 +13,7 @@
 /* bytes for each velocity controller's stack */
 #define VEL_CONTROLLER_STACK_DEPTH  4096
 
-void setup_drive_system(Drive* (*maindrives)[4]);
+void setup_drive_system(Drive *maindrives[4]);
 void set_CL_velocity(int motorNum, int speed);
 
 void IRAM_ATTR enc1a_change();

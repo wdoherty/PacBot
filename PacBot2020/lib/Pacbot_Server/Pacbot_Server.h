@@ -21,16 +21,14 @@ typedef struct drive_config {
 // DEFAULT HAS IP OF 192.168.4.1
 class Pacbot_Server {
     public:
-        Pacbot_Server(const char* ssid, const char* pass, Drive* drive_objs[4]);
+        Pacbot_Server(const char* ssid, const char* pass, Drive *drive_objs[4]);
 
         static void notFound(AsyncWebServerRequest *request);
 
-    private:
-        char* config_html();
-        void update_configs(AsyncWebServerRequest *request);
+        static char* config_html();
+        static void update_configs(AsyncWebServerRequest *request);
 
-        AsyncWebServer *server;
-        Drive* drives[4];
+        AsyncWebServer* server;
 };
 
 

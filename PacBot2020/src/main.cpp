@@ -7,7 +7,7 @@ Pacbot_Server *server;
 
 void setup() {
   Serial.begin(1000000);
-  setup_drive_system(&main_drives);
+  setup_drive_system(main_drives);
   for (int i = 5; i > 0; i--) {
     delay(1000);
     Serial.println(i);
@@ -22,6 +22,3 @@ void setup() {
 void loop() {
   delay(10);
 }
-
-
-
