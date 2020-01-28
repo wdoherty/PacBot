@@ -56,20 +56,20 @@ void setup_drive_system(Drive *maindrives[4]) {
   // fric_4.dy_p = 0;
 
 
-  fric_1.st_n = 60;
-  fric_1.st_p = 60;
-  fric_1.dy_n = 0.035;
-  fric_1.dy_p = 0.025;
+  fric_1.st_n = 35;
+  fric_1.st_p = 35;
+  fric_1.dy_n = 0.005;
+  fric_1.dy_p = 0.005;
   
   fric_2.st_n = 0;
   fric_2.st_p = 0;
   fric_2.dy_n = 0;
   fric_2.dy_p = 0;
     
-  fric_3.st_n = -60;
-  fric_3.st_p = -60;
-  fric_3.dy_n = 0.025;
-  fric_3.dy_p = 0.025;
+  fric_3.st_n = 0;
+  fric_3.st_p = 0;
+  fric_3.dy_n = 0.0;
+  fric_3.dy_p = 0.0;
    
   fric_4.st_n = 0;
   fric_4.st_p = 0;
@@ -78,26 +78,26 @@ void setup_drive_system(Drive *maindrives[4]) {
 
 
   // PID VALUES FOR VELOCITY CONTROLLER 
-  pid_1.kp = 0.8;
-  pid_1.ki = 0;
+  pid_1.kp = 0.225;
+  pid_1.ki = 0.05;
   pid_1.kd = 0; // LEAVE THIS 0 MOST LIKELY
 
-  pid_2.kp = 0.8;
-  pid_2.ki = 0;
+  pid_2.kp = 1.0;
+  pid_2.ki = 0.01;
   pid_2.kd = 0;
     
-  pid_3.kp = 0.8;
-  pid_3.ki = 0;
+  pid_3.kp = 1.0;
+  pid_3.ki = 0.01;
   pid_3.kd = 0;
    
   pid_4.kp = 0.8;
   pid_4.ki = 0;
   pid_4.kd = 0;
 
-  drive1 = new Drive(enc1, mot1, pid_1, fric_1);
-  drive2 = new Drive(enc2, mot2, pid_2, fric_2);
-  drive3 = new Drive(enc3, mot3, pid_3, fric_3);
-  drive4 = new Drive(enc4, mot4, pid_4, fric_4);
+  drive1 = new Drive(enc1, mot1, pid_1, fric_1, 1);
+  drive2 = new Drive(enc2, mot2, pid_2, fric_2, 2);
+  drive3 = new Drive(enc3, mot3, pid_3, fric_3, 3);
+  drive4 = new Drive(enc4, mot4, pid_4, fric_4, 4);
 
   maindrives[0] = drive1;
   maindrives[1] = drive2;
@@ -118,9 +118,9 @@ void setup_drive_system(Drive *maindrives[4]) {
   attachInterrupt(ENC4A, enc4a_change, CHANGE);
   attachInterrupt(ENC4B, enc4b_change, CHANGE);
 
-//  xTaskCreatePinnedToCore(drive_loop_1, "Vel_Controller_1", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+  xTaskCreatePinnedToCore(drive_loop_1, "Vel_Controller_1", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
   //xTaskCreatePinnedToCore(drive_loop_2, "Vel_Controller_2", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
-//  xTaskCreatePinnedToCore(drive_loop_3, "Vel_Controller_3", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+  //xTaskCreatePinnedToCore(drive_loop_3, "Vel_Controller_3", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
   //xTaskCreatePinnedToCore(drive_loop_4, "Vel_Controller_4", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
 
 }

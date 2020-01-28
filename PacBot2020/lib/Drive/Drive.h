@@ -28,7 +28,7 @@ typedef struct pid_values {
 
 class Drive {
     public:
-        Drive(Encoder* enc, Motor* motor, pid_values_t pid_vals, friction_vals_t fric);
+        Drive(Encoder* enc, Motor* motor, pid_values_t pid_vals, friction_vals_t fric, int id);
 
         void set_speed(int speed);
 
@@ -44,6 +44,8 @@ class Drive {
         friction_vals_t _fric;
         PID* controller;
     private:
+        uint32_t ctr = 0;
+        int _id;
 
         double fric_comp(double w);
 

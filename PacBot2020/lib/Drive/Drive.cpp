@@ -4,7 +4,8 @@
 
 bool Drive::stopped = true;
 
-Drive::Drive(Encoder* enc, Motor* motor, pid_values_t pid_v, friction_vals_t fric) {
+Drive::Drive(Encoder* enc, Motor* motor, pid_values_t pid_v, friction_vals_t fric, int id) {
+    _id = id;
     _fric = fric;
 
     _enc = enc;
@@ -38,16 +39,19 @@ void Drive::start() {
 }
 
 void Drive::control_loop() {
+    
     if (stopped) {
         _motor->set_pwm_speed(0);
         return;
     }
 
+
+    ctr++;
     _vel_est = _enc->get_velocity();
-    Serial.printf("V: %f\t",_vel_est);
+    if (ctr % 5 == 0) Serial.printf("V:%.3f, ", _vel_est);
     controller->Compute();
-    Serial.printf("E: %f\t", _requested_speed - _vel_est);
-    Serial.printf("O: %f\n", _pid_out);
+    //Serial.printf("E: %f\t", _requested_speed - _vel_est);
+    if (ctr % 5 == 0) Serial.printf("P:%.3f\n", _pid_out);
 
     if ((_requested_speed < 0 && _pid_out-ADJUSTMENT_TOLERANCE < 0) || (_requested_speed > 0 && _pid_out+ADJUSTMENT_TOLERANCE > 0) || abs(_requested_speed) <= ADJUSTMENT_TOLERANCE) {
         _pwm_out = _pid_out + fric_comp(_vel_est);
@@ -66,6 +70,6 @@ double Drive::fric_comp(double w) {
     if (w > 0) {
         return _fric.st_p + (w * _fric.dy_p);
     } else {
-        return -_fric.st_n - (w * _fric.dy_n);
+        return -_fric.st_n + (w * _fric.dy_n);
     }
 }
