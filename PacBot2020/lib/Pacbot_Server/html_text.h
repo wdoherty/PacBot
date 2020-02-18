@@ -1,6 +1,153 @@
 #ifndef HTML_TEXT_H
 #define HTML_TEXT_H
 
+#define WOFF2_LEN   14024
+#define ICON_LEN     4286
+
+const char ROOT_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/config_stylesheet.css">
+    <title></title>
+</head>
+<body>
+    <div class="row">
+        <div id="header" align="center">
+            <h1 style="font:bold 25px ">iRobotics PacBot Control Station</h1>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-1 flexVert" id="batteryDisp" style="padding-bottom: 0.75rem;">
+            <center>
+                <div class="battery">
+                    <div id="battTop" style="width: 35%; background-color: #ccc; min-height: 1.25rem; font-size: 0.1rem; border: 2px solid #333;">
+                        &nbsp;
+                    </div>
+                    <div id="battBottom" style="width: 80%; background-color: #ccc; height: 12rem; border: 2px solid #333;">
+                        <div id="battBackground" style="position:relative; margin: 0.75rem; max-height: 90%; background-color:#666;">
+                            <div id="batteryCapacity" style="position:absolute; bottom: -10rem; height: 10rem; width: 100%; background-color:#0a0;">
+                                
+                            </div>
+                            <span id="batt_voltage" style="position:absolute; bottom: -10rem; left: 0.25rem; font-size: 2.5rem;">12.6v</span>
+                        </div>
+                    </div>
+                </div>
+            </center>
+        </div>
+
+        <div class="col-2 flexVert" id ="motorDisp">
+            <div class="motor">
+                Motor 0: <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor0Val" style="position:absolute; left: 5rem; height: 1.5rem; background-color: #f00; width: 1rem; z-index: 0"></div>
+                </div>
+                <span id=Motor0RPM">0 RPM</span>
+            </div>
+            <div class="motor">
+                Motor 1:
+                <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor1Val" style="position:absolute; left: 5rem; height: 1.5rem; background-color: #f00; width: 0rem; z-index: 0"></div>
+                </div> 
+                <span id=Motor1RPM">0 RPM</span>
+            </div>
+            <div class="motor">
+                Motor 2: <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor2Val" style="position:absolute; right: 5rem; height: 1.5rem; background-color: #f00; width: 2rem; z-index: 0"></div>
+                </div>
+                <span id=Motor2RPM">0 RPM</span>
+            </div>
+            <div class="motor">
+                Motor 3: <div style="position: relative; display:inline-block; background-color: #eee; width: 10rem; height: 1.5rem;">
+                    <div style="position:absolute; left: 5rem; top: -0.5rem; height:2.5rem; background-color: #000; width: 0.25rem; z-index: 1;"></div>
+                    <div id="motor3Val" style="position:absolute; left: 5rem; height: 1.5rem; background-color: #f00; width: 3rem; z-index: 0"></div>
+                </div>
+                <span id=Motor3RPM">0 RPM</span>
+            </div>
+        </div>
+
+        <div class="col-3" id="direction">
+            <img id="dir-pacman" src="https://ui-ex.com/images/pacman-transparent-gif-5.gif" style="transform: rotate(0deg);"/>
+        </div>
+
+        <div class="col-4" id="control-section">
+            <div id="currentActivity">
+                Current Activity
+            </div>
+            <div id="manualSwitch">
+                Manual Control Switch
+            </div>
+            <div id="Update">
+                Update Firmware
+            </div>
+            <a href="/config">
+                <div id="Configure">
+                    Tuning & Control
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+            <div class="col-1a" style="display:flex; flex-direction: column;">
+                <div style="background-color: #ccc; width: 90%; margin: 1rem auto; vertical-align: baseline;">
+                    Remaining: <span id="timer" style="color:darkslategray;text-shadow: 0.1rem 0.1rem #113758;">3:00</span>
+                </div>
+                
+                <div style="background-color: #ccc;height: 8rem; margin: 1rem;">
+                    More data?
+                </div>
+            </div>
+
+            <div class="col-23">
+                <div id="pacbot_frame">
+                    <div id="pacbot" style="transform: rotate(10deg);">
+                        <div class="smallArrow" id="gameArrow" style="transform: rotate(-135deg)"></div>
+                        <div class="largeArrow" id="orientationArrow" style="transform: rotate(-135deg)"></div>
+                        <div class="TOF TOF_Horiz" id="TOF_0" style="width: 3rem;"></div>
+                        <div class="TOF TOF_Horiz" id="TOF_1" style="width: 6rem;"></div>
+                        <div class="TOF TOF_Vert" id="TOF_2" style="height: 2rem;"></div>
+                        <div class="TOF TOF_Vert" id="TOF_3" style="height: 4rem;"></div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-4" id="logging">
+                <div id="logger" class="console"></div>
+            </div>
+        </div>
+    <style>
+    .col-1 { 
+        width: 9%; 
+    }
+
+    .col-2 {
+        width: 27%;
+    }
+
+    .col-3 {
+        width: 21%;
+    }
+
+    .col-1a {
+        width: 19%;
+    }
+
+    .col-23 {
+        width: 39%;
+    }
+
+    .col-4 {
+        width: 39%;
+    }
+    </style>
+</body>
+</html>)rawliteral";
+
 const char DEFAULT_CONFIG_STYLE[] PROGMEM = R"rawliteral(
 * {
     box-sizing: border-box;
@@ -9,11 +156,9 @@ const char DEFAULT_CONFIG_STYLE[] PROGMEM = R"rawliteral(
 
 @font-face {
     font-family: 'bignoodletitlingregular';
-    src: url('https://irobotics.illinois.edu/big_noodle_titling-webfont.woff') format('woff2'),
-         url('https://irobotics.illinois.edu/big_noodle_titling-webfont.woff') format('woff');
+    src: url('bignoodle.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
-
 }
 
 h1 {
@@ -35,21 +180,6 @@ body {
     background-color: #121F26;
 }
 
-.col-1 { 
-    display: inline-block;
-    width: 39%; 
-}
-
-.col-2 {
-    display: inline-block;
-    width: 29%;
-}
-
-.col-3 {
-    display: inline-block;
-    width: 29%;
-}
-
 [class*="col-"] {
     text-align: center;
     float: left;
@@ -57,23 +187,7 @@ body {
     margin: 0.5%;
     border: 0.25rem solid #fff;
 }
-form button {
-    font-size:3rem;
-}
 
-form span {
-    font-size: 2rem!important;
-}
-
-form input {
-    font-size:1.5rem;
-}
-
-form legend {
-    font-size:3rem;
-    color: #113758;
-
-}
 .config_row {
     background-color: #ccc;
     vertical-align: middle;
@@ -119,7 +233,7 @@ img {
     padding: 2rem;
 }
 
-#control-section > div {
+#control-section div {
     background-color: #bbb;
     margin: 0.5rem;
     font-size: 2.5rem;
@@ -288,6 +402,33 @@ const char DEFAULT_CONFIG_HTML[] PROGMEM = R"rawliteral(
         </form>
     </div>
 
+    <style>
+    .col-1 { 
+        display: inline-block;
+        width: 39%%; 
+    }
+    .col-2 {
+        display: inline-block;
+        width: 29%%;
+    }
+    .col-3 {
+        display: inline-block;
+        width: 29%%;
+    }
+    form button {
+        font-size:3rem;
+    }
+    form span {
+        font-size: 2rem!important;
+    }
+    form input {
+        font-size:1.5rem;
+    }
+    form legend {
+        font-size:3rem;
+        color: #113758;
+    }
+    </style>
 </body>
 </html>)rawliteral";
 

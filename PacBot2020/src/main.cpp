@@ -1,9 +1,8 @@
 #include <Arduino.h>
-#include "Pacbot_Server.h"
+
 #include "drive_helpers.h"
 
 Drive *main_drives[4];
-Pacbot_Server *server;
 
 void setup() {
   Serial.begin(1000000);
@@ -12,9 +11,10 @@ void setup() {
 
   //server = new Pacbot_Server("pacbot", "irobotics", main_drives);
   
-  set_CL_velocity(1, 100);
+  //set_CL_velocity(2, -60);
+  //set_CL_velocity(4, 60);
   //set_CL_velocity(3, 60);
-  Drive::start();
+  //Drive::start();
 }
 
 void loop() {

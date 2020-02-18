@@ -10,10 +10,14 @@ pid_values_t pid_1, pid_2, pid_3, pid_4;
 Drive *drive1, *drive2, *drive3, *drive4;
 Drive *Drives[4] = { drive1, drive2, drive3, drive4 };
 
+QueueHandle_t pca_queue;
+
 void setup_drive_system(Drive *maindrives[4]) {
   pwm = new Adafruit_PWMServoDriver(0x48);
   pwm->begin();
   pwm->setPWMFreq(500);  // This is the maximum PWM frequency
+
+  pca_queue = xQueueCreate(10, sizeof(motor_val_t));
 
   pinMode(ENC1A, INPUT);
   pinMode(ENC1B, INPUT);
@@ -24,75 +28,54 @@ void setup_drive_system(Drive *maindrives[4]) {
   pinMode(ENC4A, INPUT);
   pinMode(ENC4B, INPUT);
 
-  enc1 = new Encoder(ENC1A, ENC1B);
-  enc2 = new Encoder(ENC2A, ENC2B);
-  enc3 = new Encoder(ENC3A, ENC3B);
-  enc4 = new Encoder(ENC4A, ENC4B);
+  enc1 = new Encoder(ENC1A, ENC1B, 0);
+  enc2 = new Encoder(ENC2A, ENC2B, 0);
+  enc3 = new Encoder(ENC3A, ENC3B, 0);
+  enc4 = new Encoder(ENC4A, ENC4B, 0);
 
-  mot1 = new Motor(PCA_1A, PCA_1B, pwm, 1);
-  mot2 = new Motor(PCA_2A, PCA_2B, pwm, 0);
-  mot3 = new Motor(PCA_3A, PCA_3B, pwm, 0);
-  mot4 = new Motor(PCA_4A, PCA_4B, pwm, 0);
+  mot1 = new Motor(PCA_1A, PCA_1B, pwm, 0, &pca_queue);
+  mot2 = new Motor(PCA_2A, PCA_2B, pwm, 0, &pca_queue);
+  mot3 = new Motor(PCA_3A, PCA_3B, pwm, 0, &pca_queue);
+  mot4 = new Motor(PCA_4A, PCA_4B, pwm, 0, &pca_queue);
 
   // FRICTION COMPENSATION VALUES (ALL SHOULD ALWAYS BE POSITIVE)
-  // fric_1.st_n = 110;
-  // fric_1.st_p = 105;
-  // fric_1.dy_n = 0.035;
-  // fric_1.dy_p = 0.025;
+  fric_1.st_n = DEFAULT_FRIC_COMP_ST_N;
+  fric_1.st_p = DEFAULT_FRIC_COMP_ST_P;
+  fric_1.dy_n = DEFAULT_FRIC_COMP_DY_N;
+  fric_1.dy_p = DEFAULT_FRIC_COMP_DY_P;
   
-  // fric_2.st_n = 0;
-  // fric_2.st_p = 0;
-  // fric_2.dy_n = 0;
-  // fric_2.dy_p = 0;
+  fric_2.st_n = DEFAULT_FRIC_COMP_ST_N;
+  fric_2.st_p = DEFAULT_FRIC_COMP_ST_P;
+  fric_2.dy_n = DEFAULT_FRIC_COMP_DY_N;
+  fric_2.dy_p = DEFAULT_FRIC_COMP_DY_P;
     
-  // fric_3.st_n = 85;
-  // fric_3.st_p = 100;
-  // fric_3.dy_n = 0.025;
-  // fric_3.dy_p = 0.025;
+  fric_3.st_n = DEFAULT_FRIC_COMP_ST_N;
+  fric_3.st_p = DEFAULT_FRIC_COMP_ST_P;
+  fric_3.dy_n = DEFAULT_FRIC_COMP_DY_N;
+  fric_3.dy_p = DEFAULT_FRIC_COMP_DY_P;
    
-  // fric_4.st_n = 0;
-  // fric_4.st_p = 0;
-  // fric_4.dy_n = 0;
-  // fric_4.dy_p = 0;
-
-
-  fric_1.st_n = 35;
-  fric_1.st_p = 35;
-  fric_1.dy_n = 0.005;
-  fric_1.dy_p = 0.005;
-  
-  fric_2.st_n = 0;
-  fric_2.st_p = 0;
-  fric_2.dy_n = 0;
-  fric_2.dy_p = 0;
-    
-  fric_3.st_n = 0;
-  fric_3.st_p = 0;
-  fric_3.dy_n = 0.0;
-  fric_3.dy_p = 0.0;
-   
-  fric_4.st_n = 0;
-  fric_4.st_p = 0;
-  fric_4.dy_n = 0;
-  fric_4.dy_p = 0;
+  fric_4.st_n = DEFAULT_FRIC_COMP_ST_N;
+  fric_4.st_p = DEFAULT_FRIC_COMP_ST_P;
+  fric_4.dy_n = DEFAULT_FRIC_COMP_DY_N;
+  fric_4.dy_p = DEFAULT_FRIC_COMP_DY_P;
 
 
   // PID VALUES FOR VELOCITY CONTROLLER 
-  pid_1.kp = 0.225;
-  pid_1.ki = 0.05;
-  pid_1.kd = 0; // LEAVE THIS 0 MOST LIKELY
+  pid_1.kp = DEFAULT_VEL_CONTROLLER_KP;
+  pid_1.ki = DEFAULT_VEL_CONTROLLER_KI;
+  pid_1.kd = DEFAULT_VEL_CONTROLLER_KD; // LEAVE THIS 0 MOST LIKELY
 
-  pid_2.kp = 1.0;
-  pid_2.ki = 0.01;
-  pid_2.kd = 0;
-    
-  pid_3.kp = 1.0;
-  pid_3.ki = 0.01;
-  pid_3.kd = 0;
-   
-  pid_4.kp = 0.8;
-  pid_4.ki = 0;
-  pid_4.kd = 0;
+  pid_2.kp = DEFAULT_VEL_CONTROLLER_KP;
+  pid_2.ki = DEFAULT_VEL_CONTROLLER_KI;
+  pid_2.kd = DEFAULT_VEL_CONTROLLER_KD;
+  
+  pid_3.kp = DEFAULT_VEL_CONTROLLER_KP;
+  pid_3.ki = DEFAULT_VEL_CONTROLLER_KI;
+  pid_3.kd = DEFAULT_VEL_CONTROLLER_KD;
+  
+  pid_4.kp = DEFAULT_VEL_CONTROLLER_KP;
+  pid_4.ki = DEFAULT_VEL_CONTROLLER_KI;
+  pid_4.kd = DEFAULT_VEL_CONTROLLER_KD;
 
   drive1 = new Drive(enc1, mot1, pid_1, fric_1, 1);
   drive2 = new Drive(enc2, mot2, pid_2, fric_2, 2);
@@ -118,11 +101,30 @@ void setup_drive_system(Drive *maindrives[4]) {
   attachInterrupt(ENC4A, enc4a_change, CHANGE);
   attachInterrupt(ENC4B, enc4b_change, CHANGE);
 
-  xTaskCreatePinnedToCore(drive_loop_1, "Vel_Controller_1", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
-  //xTaskCreatePinnedToCore(drive_loop_2, "Vel_Controller_2", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+  //xTaskCreatePinnedToCore(drive_loop_1, "Vel_Controller_1", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+  xTaskCreatePinnedToCore(drive_loop_2, "Vel_Controller_2", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
   //xTaskCreatePinnedToCore(drive_loop_3, "Vel_Controller_3", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
-  //xTaskCreatePinnedToCore(drive_loop_4, "Vel_Controller_4", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
+  xTaskCreatePinnedToCore(drive_loop_4, "Vel_Controller_4", VEL_CONTROLLER_STACK_DEPTH, NULL, 10, NULL, 1);
 
+  xTaskCreatePinnedToCore(pcaDriver, "PCA_DRIVER", PCA_DRIVER_STACK_DEPTH, NULL, 10, NULL, 1);
+
+}
+
+void pcaDriver( void * parameter) {
+  motor_val_t voltage;
+
+  for ( ; ; ) {
+        // continually check if there are status' to be shown, and read them off the queue and display them if any exist
+        if (xQueueReceive(pca_queue, &voltage, 0) == pdTRUE) {
+          pwm->setPWM(voltage.pin_a, voltage.pin_a_val);
+          pwm->setPWM(voltage.pin_b, voltage.pin_b_val);
+          Serial.println("UPDATED PCA\n");
+        }
+
+        // waiting after each check based on the software configs
+        vTaskDelay(10.0 / portTICK_PERIOD_MS);
+    }
+    vTaskDelete(NULL);
 }
 
 
@@ -182,10 +184,13 @@ void IRAM_ATTR enc2b_change() {
 
 void drive_loop_2( void * parameter) {
   drive2->start();
+  uint32_t idx = 0;
   while (1) {
+    idx++;
     vTaskDelay(LOOP_PERIOD_MS / portTICK_PERIOD_MS);
     drive2->control_loop();
     //Serial.println("LOOP 2");
+    if (idx % 250 == 0) Serial.printf("SIZE[2]: %u", uxTaskGetStackHighWaterMark(NULL));
   }
 }
 

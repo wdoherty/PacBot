@@ -1,7 +1,7 @@
 #include "Motor.h"
 #include "../Helpers/Helpers.h"
 
-Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm, int reversed) {
+Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm, int reversed, QueueHandle_t* pca_queue) {
     if (reversed) {
         _pin_a = pin_b;
         _pin_b = pin_a;
@@ -10,6 +10,9 @@ Motor::Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm, int reversed) {
         _pin_b = pin_b;
     }
 
+    current.pin_a = _pin_a;
+    current.pin_b = _pin_b;
+    _pca_queue = pca_queue;
     _pwm = pwm;                                                 // keep a copy of the pca9685 driver to set pwm later
 }
 
@@ -38,7 +41,12 @@ void Motor::set_pwm_speed(double speed) {
     } else {
         pin_b_val = (PWM_RESOLUTION * magnitude);
     }
-    //Serial.printf("PWM:%d\t%d\n",pin_a_val, pin_b_val);
-    _pwm->setPWM(_pin_a, pin_a_val);                            // set the pwm values of those pins on the PCA9685
-    _pwm->setPWM(_pin_b, pin_b_val);
+    Serial.printf("PWM:%d\t%d\n",pin_a_val, pin_b_val);
+
+    current.pin_a_val = pin_a_val;
+    current.pin_b_val = pin_b_val;
+    xQueueSend(_pca_queue, &current, 0);
+
+    // _pwm->setPWM(_pin_a, pin_a_val);                            // set the pwm values of those pins on the PCA9685
+    // _pwm->setPWM(_pin_b, pin_b_val);
 }

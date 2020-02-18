@@ -5,8 +5,7 @@
 
 @font-face {
     font-family: 'bignoodletitlingregular';
-    src: url('https://irobotics.illinois.edu/big_noodle_titling-webfont.woff') format('woff2'),
-         url('https://irobotics.illinois.edu/big_noodle_titling-webfont.woff') format('woff');
+    src: url('bignoodle.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
 

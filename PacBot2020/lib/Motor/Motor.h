@@ -19,12 +19,22 @@
 /* pwm resolution */
 #define PWM_RESOLUTION  4095
 
+typedef struct motor_val {
+    int pin_a;
+    int pin_a_val;
+    int pin_b;
+    int pin_b_val;
+} motor_val_t;
+
 class Motor {
     public:
-        Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm, int reversed);
+        Motor(int pin_a, int pin_b, Adafruit_PWMServoDriver* pwm, int reversed, QueueHandle_t* pca_queue);
         void set_pwm_speed(double speed);
 
     private:
+    
+        QueueHandle_t* _pca_queue;
+        motor_val_t current;
         Adafruit_PWMServoDriver* _pwm;
         int _requested_pwm = 0;
         int _pin_a;

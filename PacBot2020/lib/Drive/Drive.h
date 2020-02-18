@@ -9,7 +9,7 @@
 /* max speed in RPM */
 #define MAX_SPEED_RPM   300
 
-#define ADJUSTMENT_TOLERANCE    15
+#define ADJUSTMENT_TOLERANCE    5
 #define FRIC_COMP_DEADBAND      5
 
 typedef struct friction_vals {

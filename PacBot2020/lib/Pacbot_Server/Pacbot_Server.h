@@ -31,8 +31,4 @@ class Pacbot_Server {
         AsyncWebServer* server;
 };
 
-
-
-
-
 #endif

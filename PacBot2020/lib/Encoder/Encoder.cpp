@@ -6,9 +6,10 @@
 #define TICK_PER_STEP_TO_RPM(x) ( (x) * STEPS_PER_MINUTE / TICKS_PER_ROTATION )
 
 
-Encoder::Encoder(int A, int B) {
+Encoder::Encoder(int A, int B, int reversed) {
     pin_A = A;
     pin_B = B;
+    _rev = reversed;
     pinMode(pin_A, INPUT);
     pinMode(pin_B, INPUT);
     A_state = digitalRead(pin_A);
@@ -21,7 +22,8 @@ void Encoder::resetTicks() {
 }
 
 long Encoder::get_ticks() {
-    Serial.printf("Y:%ld\n", ticks);
+    //Serial.printf("Y:%ld\n", ticks);
+    if (_rev) return -ticks;
     return ticks;
 }
 
@@ -84,6 +86,7 @@ double Encoder::get_velocity() {
     //Serial.printf("S:%f\tC:%d\n",vel_sum, vel_count);
 
     double velocity = (vel_count == 0) ? 0.0 : vel_sum / (double)vel_count;
+    if (_rev) velocity *= -1;
     //printf("%f\n\n\n", velocity);
     return TICK_PER_STEP_TO_RPM(velocity);
 }

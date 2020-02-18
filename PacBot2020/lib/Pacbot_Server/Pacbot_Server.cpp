@@ -17,7 +17,7 @@ Pacbot_Server::Pacbot_Server(const char* ssid, const char* pass, Drive *drive_ob
     for (int i = 0; i < 4; i++) server_drives[i] = drive_objs[i];
 
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send_P(200, "text/html", "root_html");
+        request->send_P(200, "text/html", ROOT_HTML);
     });
     
     server->on("/config", HTTP_GET, [](AsyncWebServerRequest *request){

@@ -18,7 +18,7 @@ typedef struct tick_hist {
 
 class Encoder {
     public:
-        Encoder(int A, int B);
+        Encoder(int A, int B, int reversed);
         void update();
         void resetTicks();
         long get_ticks();
@@ -29,7 +29,7 @@ class Encoder {
         double get_velocity();
 
     private:
-
+        int _rev;
 
         int get_time_step_index(int time_step);
 
